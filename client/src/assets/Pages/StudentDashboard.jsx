@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area } from 'recharts';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useProjectStore } from '../../store/projectStore';
 import { FaProjectDiagram, FaCheckCircle, FaClock, FaStar, FaUpload, FaEye, FaComment, FaChartLine, FaTrophy, FaFire, FaTimes, FaGithub, FaDownload, FaExternalLinkAlt, FaCalendarAlt, FaUser, FaExclamationTriangle } from 'react-icons/fa';
 import ProjectSubmissionModal from '../Common/ProjectSubmissionModal';
 
 const StudentDashboard = () => {
+  const navigate = useNavigate();
   const { user } = useAuthStore();
   const { dashboardData, getDashboardData, loading } = useProjectStore();
   const [activeSection, setActiveSection] = useState('overview');
@@ -161,7 +163,7 @@ const StudentDashboard = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => setDetailsModal({ isOpen: true, project })}
+                onClick={() => navigate(`/projects/${project._id}`)}
                 className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center text-sm"
               >
                 <FaEye className="mr-2" />

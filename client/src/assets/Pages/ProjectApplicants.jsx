@@ -59,7 +59,7 @@ const ProjectApplicants = () => {
 
   const statusOptions = [
     { value: 'all', label: 'All Applications', color: 'gray' },
-    { value: 'pending', label: 'Pending Review', color: 'yellow' },
+    { value: 'applied', label: 'Applied', color: 'yellow' },
     { value: 'shortlisted', label: 'Shortlisted', color: 'blue' },
     { value: 'accepted', label: 'Accepted', color: 'green' },
     { value: 'rejected', label: 'Rejected', color: 'red' }
@@ -148,12 +148,12 @@ const ProjectApplicants = () => {
 
   const getStatusColor = (status) => {
     const colors = {
-      pending: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/50',
+      applied: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/50',
       shortlisted: 'bg-blue-500/20 text-blue-300 border-blue-500/50',
       accepted: 'bg-green-500/20 text-green-300 border-green-500/50',
       rejected: 'bg-red-500/20 text-red-300 border-red-500/50'
     };
-    return colors[status] || colors.pending;
+    return colors[status] || colors.applied;
   };
 
   const getStatusIcon = (status) => {
@@ -164,6 +164,8 @@ const ProjectApplicants = () => {
         return <XCircleIcon className="h-4 w-4" />;
       case 'shortlisted':
         return <StarIcon className="h-4 w-4" />;
+      case 'applied':
+        return <ClockIcon className="h-4 w-4" />;
       default:
         return <ClockIcon className="h-4 w-4" />;
     }
@@ -432,7 +434,7 @@ const ProjectApplicants = () => {
                     View Details
                   </motion.button>
                   
-                  {application.status === 'pending' && (
+                  {application.status === 'applied' && (
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
@@ -726,7 +728,7 @@ const ProjectApplicants = () => {
                 </div>
 
                 {/* Action Buttons */}
-                {selectedApplication.status === 'pending' && (
+                {selectedApplication.status === 'applied' && (
                   <div className="flex justify-center space-x-4 mt-8 pt-6 border-t border-white/20">
                     <motion.button
                       whileHover={{ scale: 1.05 }}
@@ -738,7 +740,7 @@ const ProjectApplicants = () => {
                       <XCircleIcon className="h-5 w-5 mr-2" />
                       Reject
                     </motion.button>
-                    
+
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
@@ -749,7 +751,7 @@ const ProjectApplicants = () => {
                       <StarIcon className="h-5 w-5 mr-2" />
                       Shortlist
                     </motion.button>
-                    
+
                     <motion.button
                       whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(0,0,0,0.3)" }}
                       whileTap={{ scale: 0.95 }}

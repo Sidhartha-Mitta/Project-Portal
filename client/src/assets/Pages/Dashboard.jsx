@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 import { useAuthStore } from '../../store/authStore';
 import { useProjectStore } from '../../store/projectStore';
-import { FaProjectDiagram, FaCheckCircle, FaClock, FaStar, FaUpload, FaEye, FaTrash, FaComment, FaChartLine, FaUsers, FaTrophy, FaFire, FaRocket, FaCode, FaPalette, FaDatabase, FaShieldAlt, FaGamepad, FaMobileAlt } from 'react-icons/fa';
+import { FaProjectDiagram, FaCheckCircle, FaClock, FaStar, FaUpload, FaEye, FaTrash, FaComment, FaChartLine, FaUsers, FaTrophy, FaFire, FaRocket, FaCode, FaPalette, FaDatabase, FaShieldAlt, FaGamepad, FaMobileAlt, FaTimes } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import ProjectSubmissionModal from '../Common/ProjectSubmissionModal';
 import ProjectSubmissionsModal from '../Common/ProjectSubmissionsModal';
@@ -12,10 +12,11 @@ import ProjectRatingModal from '../Common/ProjectRatingModal';
 const Dashboard = () => {
   const { user } = useAuthStore();
   const { dashboardData, getDashboardData, loading } = useProjectStore();
-  const [activeTab, setActiveTab] = useState('ongoing');
+  const [activeTab, setActiveTab] = useState('applied');
   const [submissionModal, setSubmissionModal] = useState({ isOpen: false, project: null });
   const [submissionsModal, setSubmissionsModal] = useState({ isOpen: false, project: null });
   const [ratingModal, setRatingModal] = useState({ isOpen: false, project: null });
+  const [editModal, setEditModal] = useState({ isOpen: false, project: null });
 
   useEffect(() => {
     getDashboardData();
@@ -24,6 +25,7 @@ const Dashboard = () => {
   const analyticsData = dashboardData?.analytics || {};
   const appliedProjects = dashboardData?.appliedProjects || [];
   const acceptedProjects = dashboardData?.acceptedProjects || [];
+  const rejectedProjects = dashboardData?.rejectedProjects || [];
   const ongoingProjects = dashboardData?.ongoingProjects || [];
   const completedProjects = dashboardData?.completedProjects || [];
   const postedProjects = dashboardData?.postedProjects || [];
@@ -109,7 +111,9 @@ const Dashboard = () => {
             <div className="flex items-center mt-2">
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                 project.status === 'completed' ? 'bg-green-100 text-green-800' :
+                project.status === 'modify' ? 'bg-orange-100 text-orange-800' :
                 project.status === 'in-progress' || project.status === 'assigned' ? 'bg-yellow-100 text-yellow-800' :
+                project.status === 'rejected' ? 'bg-red-100 text-red-800' :
                 'bg-blue-100 text-blue-800'
               }`}>
                 {project.status}
@@ -121,17 +125,49 @@ const Dashboard = () => {
                 </span>
               )}
             </div>
+            {user.role === 'student' && type === 'completed' && project.ratings?.[0]?.comment && (
+              <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                <p className="text-sm text-gray-700">
+                  <strong>Feedback:</strong> {project.ratings[0].comment}
+                </p>
+              </div>
+            )}
           </div>
           <div className="flex space-x-2">
-            {user.role === 'student' && type === 'ongoing' && (
+            {user.role === 'student' && (type === 'applied' || type === 'accepted') && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  // View project details - could open a modal or navigate to project page
+                  toast.info('View project functionality to be implemented');
+                }}
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center"
+              >
+                <FaEye className="mr-2" />
+                View Project
+              </motion.button>
+            )}
+            {user.role === 'student' && type === 'accepted' && (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setSubmissionModal({ isOpen: true, project })}
-                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center"
+                className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center"
               >
                 <FaUpload className="mr-2" />
-                Submit
+                Submit Project
+              </motion.button>
+            )}
+            {user.role === 'student' && type === 'ongoing' && project.status === 'modify' && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setSubmissionModal({ isOpen: true, project })}
+                className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center"
+              >
+                <FaUpload className="mr-2" />
+                Resubmit
               </motion.button>
             )}
             {user.role === 'industry' && type === 'ongoing' && (
@@ -144,6 +180,15 @@ const Dashboard = () => {
                 >
                   <FaEye className="mr-2" />
                   View Submissions
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setEditModal({ isOpen: true, project })}
+                  className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors flex items-center"
+                >
+                  <FaComment className="mr-2" />
+                  Edit
                 </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
@@ -246,10 +291,11 @@ const Dashboard = () => {
               className="mb-8"
             >
               {/* Student Analytics Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 {[
                   { title: 'Applied Projects', value: analyticsData.appliedCount, icon: FaClock, gradient: 'from-blue-500 to-blue-600', description: 'Applications submitted' },
                   { title: 'Accepted Projects', value: analyticsData.acceptedCount, icon: FaCheckCircle, gradient: 'from-green-500 to-emerald-500', description: 'Applications accepted' },
+                  { title: 'Rejected Projects', value: rejectedProjects.length, icon: FaTimes, gradient: 'from-red-500 to-red-600', description: 'Applications rejected' },
                   { title: 'Completed Projects', value: analyticsData.completedCount, icon: FaTrophy, gradient: 'from-purple-500 to-pink-500', description: 'Projects finished' }
                 ].map((card, index) => (
                   <motion.div
@@ -339,11 +385,12 @@ const Dashboard = () => {
               className="mb-8"
             >
               {/* Industry Analytics Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
                 {[
                   { title: 'Total Projects', value: analyticsData.totalProjects, icon: FaProjectDiagram, gradient: 'from-purple-500 to-purple-600' },
                   { title: 'Total Applications', value: analyticsData.totalApplications, icon: FaUsers, gradient: 'from-blue-500 to-cyan-500' },
                   { title: 'Active Projects', value: analyticsData.activeProjects, icon: FaFire, gradient: 'from-orange-500 to-red-500' },
+                  { title: 'Completed Projects', value: analyticsData.completedCount, icon: FaCheckCircle, gradient: 'from-green-500 to-emerald-500' },
                   { title: 'Avg Rating', value: analyticsData.averageRating, icon: FaStar, gradient: 'from-yellow-500 to-amber-500' }
                 ].map((card, index) => (
                   <motion.div
@@ -365,7 +412,7 @@ const Dashboard = () => {
               </div>
 
               {/* Industry Charts */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -438,6 +485,31 @@ const Dashboard = () => {
                     </PieChart>
                   </ResponsiveContainer>
                 </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 }}
+                  className="bg-white rounded-xl shadow-lg p-6 border border-gray-100"
+                >
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <FaChartLine className="mr-2 text-indigo-500" />
+                    Project Completion Rate
+                  </h3>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <BarChart data={[
+                      { name: 'Posted', value: analyticsData.totalProjects || 0, color: '#8B5CF6' },
+                      { name: 'Active', value: analyticsData.activeProjects || 0, color: '#F59E0B' },
+                      { name: 'Completed', value: analyticsData.completedCount || 0, color: '#10B981' }
+                    ]}>
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <Tooltip />
+                      <Bar dataKey="value" fill="#8B5CF6" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </motion.div>
               </div>
             </motion.div>
           )}
@@ -454,6 +526,7 @@ const Dashboard = () => {
               {(user?.role === 'student' ? [
                 { id: 'applied', label: 'Applied Projects', count: appliedProjects.length },
                 { id: 'accepted', label: 'Accepted Projects', count: analyticsData.acceptedCount || 0 },
+                { id: 'rejected', label: 'Rejected Projects', count: rejectedProjects.length },
                 { id: 'completed', label: 'Completed Projects', count: completedProjects.length }
               ] : [
                 { id: 'posted', label: 'Posted Projects', count: postedProjects.length },
@@ -481,6 +554,7 @@ const Dashboard = () => {
                 <>
                   {activeTab === 'applied' && renderProjects(appliedProjects, 'applied')}
                   {activeTab === 'accepted' && renderProjects(acceptedProjects, 'accepted')}
+                  {activeTab === 'rejected' && renderProjects(rejectedProjects, 'rejected')}
                   {activeTab === 'completed' && renderProjects(completedProjects, 'completed')}
                 </>
               ) : (
@@ -511,6 +585,22 @@ const Dashboard = () => {
           onClose={() => setRatingModal({ isOpen: false, project: null })}
           project={ratingModal.project}
         />
+
+        {/* Edit Project Modal - Placeholder for now */}
+        {editModal.isOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Edit Project</h2>
+              <p className="text-gray-600 mb-4">Edit project functionality to be implemented</p>
+              <button
+                onClick={() => setEditModal({ isOpen: false, project: null })}
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

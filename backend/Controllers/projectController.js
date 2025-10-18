@@ -243,6 +243,9 @@ export const submitProject = async (req, res) => {
 
     await project.save();
 
+    // TODO: Add notification system here to alert industry user
+    // This could be done via email, in-app notifications, or real-time updates
+
     res.json({
       success: true,
       message: "Project submitted successfully",
@@ -432,7 +435,7 @@ export const getDashboardData = async (req, res) => {
       .sort({ createdAt: -1 });
 
     } else if (req.user.role === 'industry') {
-      // Get all posted projects
+      // Get all posted projects (all projects posted by the industry user)
       postedProjects = await Project.find({
         postedBy: req.user._id
       })
@@ -440,10 +443,11 @@ export const getDashboardData = async (req, res) => {
       .populate('submissions.submittedBy', 'name email avatar')
       .sort({ createdAt: -1 });
 
-      // Get ongoing projects (posted by user, with teams)
+      // Get ongoing projects (projects that have been assigned to teams and are in progress)
       ongoingProjects = await Project.find({
         postedBy: req.user._id,
-        status: { $in: ['assigned', 'in-progress'] }
+        status: { $in: ['assigned', 'in-progress', 'modify'] },
+        team: { $exists: true, $ne: null }
       })
       .populate('team')
       .populate('submissions.submittedBy', 'name email avatar')

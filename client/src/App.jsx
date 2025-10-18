@@ -2,11 +2,14 @@ import UserLayout from "./assets/layouts/UserLayout";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { useThemeStore } from "./store/themeStore";
+import { useAuthStore } from "./store/authStore";
 import Home from "./assets/Pages/Home";
 import Register from "./assets/Pages/Auth/Register";
 import Login from "./assets/Pages/Auth/Login";
 import ProfilePage from "./assets/Pages/ProfilePage";
 import Dashboard from "./assets/Pages/Dashboard";
+import StudentDashboard from "./assets/Pages/StudentDashboard";
+import IndustryDashboard from "./assets/Pages/IndustryDashboard";
 import ProjectsPage from "./assets/Pages/ProjectPage";
 import ProjectDelails from "./assets/Common/ProjectDelails";
 import ProjectApplicants from "./assets/Pages/ProjectApplicants"
@@ -15,6 +18,7 @@ import TeamsPage from "./assets/Pages/TeamsPage";
 // import Project from "./assets/Common/demo";
 function App() {
   const { theme } = useThemeStore();
+  const { user } = useAuthStore();
   const router = createBrowserRouter([
     {
       path: "/",
@@ -50,7 +54,7 @@ function App() {
         },
         {
           path: "/dashboard",
-          element: <Dashboard />,
+          element: user?.role === 'student' ? <StudentDashboard /> : user?.role === 'industry' ? <IndustryDashboard /> : <Dashboard />,
         },
         {
           path: "/post-project",

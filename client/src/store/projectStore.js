@@ -408,7 +408,7 @@ export const useProjectStore = create((set) => ({
         throw new Error(result.message || "Failed to submit project");
       }
 
-      // Update dashboard data
+      // Update dashboard data immediately for real-time updates
       const dashboardResponse = await fetch(`${API_URL}/dashboard/data`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -419,6 +419,9 @@ export const useProjectStore = create((set) => ({
         const dashboardResult = await dashboardResponse.json();
         set({ dashboardData: dashboardResult.data });
       }
+
+      // TODO: Add real-time notification system here
+      // This could use WebSockets, Server-Sent Events, or polling
 
       set({ loading: false });
       return result.project;

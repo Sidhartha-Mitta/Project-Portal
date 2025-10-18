@@ -172,7 +172,7 @@ const ProjectSchema = new mongoose.Schema({
     },
     status: {
       type: String,
-      enum: ['submitted', 'under-review', 'changes-requested', 'approved'],
+      enum: ['submitted', 'under-review', 'changes-requested', 'approved', 'modify'],
       default: 'submitted'
     },
     feedback: String,

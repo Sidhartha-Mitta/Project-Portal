@@ -207,15 +207,21 @@ export const submitProject = async (req, res) => {
 
     // Handle zip file upload
     if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: 'project-submissions',
-        resource_type: 'raw'
-      });
-      zipFile = {
-        filename: req.file.originalname,
-        url: result.secure_url,
-        uploadedAt: new Date()
-      };
+      try {
+        const result = await cloudinary.uploader.upload(req.file.path, {
+          folder: 'project-submissions',
+          resource_type: 'raw'
+        });
+        zipFile = {
+          filename: req.file.originalname,
+          url: result.secure_url,
+          uploadedAt: new Date()
+        };
+      } catch (cloudinaryError) {
+        console.error('Cloudinary upload error:', cloudinaryError);
+        // Continue without zip file if upload fails
+        console.log('Continuing without zip file upload due to Cloudinary error');
+      }
     }
 
     // Check if submission already exists
@@ -241,6 +247,8 @@ export const submitProject = async (req, res) => {
       });
     }
 
+    // Update project status to 'in-progress' when submitted
+    project.status = 'in-progress';
     await project.save();
 
     // TODO: Add notification system here to alert industry user

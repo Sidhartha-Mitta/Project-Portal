@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area } from 'recharts';
 import { useAuthStore } from '../../store/authStore';
 import { useProjectStore } from '../../store/projectStore';
-import { FaProjectDiagram, FaCheckCircle, FaClock, FaStar, FaUpload, FaEye, FaComment, FaChartLine, FaTrophy, FaFire, FaTimes, FaGithub, FaDownload, FaExternalLinkAlt, FaCalendarAlt, FaUser } from 'react-icons/fa';
+import { FaProjectDiagram, FaCheckCircle, FaClock, FaStar, FaUpload, FaEye, FaComment, FaChartLine, FaTrophy, FaFire, FaTimes, FaGithub, FaDownload, FaExternalLinkAlt, FaCalendarAlt, FaUser, FaExclamationTriangle } from 'react-icons/fa';
 import ProjectSubmissionModal from '../Common/ProjectSubmissionModal';
 
 const StudentDashboard = () => {
@@ -23,6 +23,10 @@ const StudentDashboard = () => {
   const acceptedProjects = dashboardData?.acceptedProjects || [];
   const rejectedProjects = dashboardData?.rejectedProjects || [];
   const completedProjects = dashboardData?.completedProjects || [];
+  const ongoingProjects = dashboardData?.ongoingProjects || [];
+  const modificationRequests = ongoingProjects.filter(project =>
+    project.submissions?.some(sub => sub.status === 'changes-requested' || sub.status === 'modify')
+  );
 
   // Chart data
   const statusChartData = [
@@ -80,8 +84,14 @@ const StudentDashboard = () => {
                 project.status === 'rejected' ? 'bg-red-100 text-red-800' :
                 'bg-blue-100 text-blue-800'
               }`}>
-                {project.status}
+                {type === 'modifications' ? 'Modifications Requested' : project.status}
               </span>
+              {type === 'modifications' && (
+                <span className="ml-2 flex items-center text-orange-600">
+                  <FaExclamationTriangle className="mr-1" />
+                  Needs Revision
+                </span>
+              )}
               {type === 'completed' && (
                 <span className="ml-2 flex items-center text-yellow-500">
                   <FaStar className="mr-1" />
@@ -134,6 +144,17 @@ const StudentDashboard = () => {
                 </div>
               </div>
             )}
+            {type === 'modifications' && project.submissions?.length > 0 && (
+              <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                <h4 className="text-sm font-semibold text-orange-800 mb-2">Latest Feedback:</h4>
+                <p className="text-sm text-orange-700">
+                  {project.submissions[project.submissions.length - 1]?.feedback || 'Please review and resubmit your project with the requested changes.'}
+                </p>
+                <p className="text-xs text-orange-600 mt-1">
+                  Feedback received: {new Date(project.submissions[project.submissions.length - 1]?.feedbackAt).toLocaleDateString()}
+                </p>
+              </div>
+            )}
           </div>
           <div className="flex flex-col space-y-2 ml-4">
             {(type === 'applied' || type === 'accepted') && (
@@ -156,6 +177,17 @@ const StudentDashboard = () => {
               >
                 <FaUpload className="mr-2" />
                 Submit Project
+              </motion.button>
+            )}
+            {type === 'modifications' && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setSubmissionModal({ isOpen: true, project })}
+                className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center text-sm"
+              >
+                <FaUpload className="mr-2" />
+                Resubmit Project
               </motion.button>
             )}
             {type === 'completed' && (
@@ -208,6 +240,7 @@ const StudentDashboard = () => {
                 { id: 'overview', label: 'Overview', icon: FaChartLine },
                 { id: 'applied', label: 'Applied Projects', icon: FaClock, count: appliedProjects.length },
                 { id: 'accepted', label: 'Accepted Projects', icon: FaCheckCircle, count: analyticsData.acceptedCount || 0 },
+                { id: 'modifications', label: 'Modifications Requested', icon: FaExclamationTriangle, count: modificationRequests.length },
                 { id: 'completed', label: 'Completed Projects', icon: FaTrophy, count: completedProjects.length },
                 { id: 'analytics', label: 'Analytics', icon: FaChartLine }
               ].map((tab) => (
@@ -373,6 +406,22 @@ const StudentDashboard = () => {
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Accepted Projects</h2>
               <div className="space-y-6">
                 {renderProjects(acceptedProjects, 'accepted')}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Modifications Requested Section */}
+          {activeSection === 'modifications' && (
+            <motion.div
+              key="modifications"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="bg-white rounded-lg shadow-md p-6"
+            >
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Modifications Requested</h2>
+              <div className="space-y-6">
+                {renderProjects(modificationRequests, 'modifications')}
               </div>
             </motion.div>
           )}

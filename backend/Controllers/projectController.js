@@ -1,7 +1,7 @@
 import Project from "../Models/Project.js";
 import Team from "../Models/Team.js";
 import User from "../Models/User.js";
-import cloudinary from "../utils/cloudinary.js";
+import cloudinary, { configureCloudinary } from "../utils/cloudinary.js";
 
 // @desc    Create a new project
 // @route   POST /api/projects
@@ -203,62 +203,110 @@ export const submitProject = async (req, res) => {
     }
 
     const { repoLink, liveDemo } = req.body;
-    let zipFile = null;
 
-    // Handle zip file upload
+    // Configure Cloudinary
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
+
+    // Handle zip file upload using Cloudinary upload_stream
     if (req.file) {
-      try {
-        const result = await cloudinary.uploader.upload(req.file.path, {
+      console.log('ZIP file detected, processing upload...');
+      const streamifier = (await import('streamifier')).default;
+
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
           folder: 'project-submissions',
-          resource_type: 'raw'
-        });
-        zipFile = {
-          filename: req.file.originalname,
-          url: result.secure_url,
-          uploadedAt: new Date()
-        };
-      } catch (cloudinaryError) {
-        console.error('Cloudinary upload error:', cloudinaryError);
-        // Continue without zip file if upload fails
-        console.log('Continuing without zip file upload due to Cloudinary error');
-      }
-    }
+          resource_type: 'raw',
+          public_id: `${Date.now()}-${req.file.originalname.replace(/[^a-zA-Z0-9]/g, '_')}`
+        },
+        async (error, result) => {
+          if (error) {
+            console.error("Cloudinary upload error:", error);
+            return res.status(500).json({
+              success: false,
+              message: "Failed to upload ZIP file"
+            });
+          }
 
-    // Check if submission already exists
-    const existingSubmission = project.submissions.find(sub =>
-      sub.submittedBy.toString() === req.user._id.toString()
-    );
+          console.log('ZIP file uploaded successfully:', result.secure_url);
 
-    if (existingSubmission) {
-      // Update existing submission
-      if (repoLink !== undefined) existingSubmission.repoLink = repoLink;
-      if (liveDemo !== undefined) existingSubmission.liveDemo = liveDemo;
-      if (zipFile) existingSubmission.zipFile = zipFile;
-      existingSubmission.status = 'submitted';
-      existingSubmission.submittedAt = new Date();
+          const zipFile = {
+            filename: req.file.originalname,
+            url: result.secure_url,
+            uploadedAt: new Date()
+          };
+
+          // Check if submission already exists
+          const existingSubmission = project.submissions.find(sub =>
+            sub.submittedBy.toString() === req.user._id.toString()
+          );
+
+          if (existingSubmission) {
+            if (repoLink && repoLink.trim()) existingSubmission.repoLink = repoLink.trim();
+            if (liveDemo && liveDemo.trim()) existingSubmission.liveDemo = liveDemo.trim();
+            existingSubmission.zipFile = zipFile;
+            existingSubmission.status = 'submitted';
+            existingSubmission.submittedAt = new Date();
+          } else {
+            project.submissions.push({
+              submittedBy: req.user._id,
+              status: 'submitted',
+              zipFile,
+              repoLink: repoLink?.trim() || null,
+              liveDemo: liveDemo?.trim() || null,
+              submittedAt: new Date()
+            });
+          }
+
+          // Update project status
+          project.status = 'in-progress';
+          await project.save();
+
+          res.json({
+            success: true,
+            message: "Project submitted successfully",
+            project
+          });
+        }
+      );
+
+      streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+
     } else {
-      // Create new submission
-      project.submissions.push({
-        repoLink,
-        liveDemo,
-        zipFile,
-        submittedBy: req.user._id,
-        status: 'submitted'
+      console.log('No ZIP file detected, processing text submission only');
+      // No ZIP file, only repo/liveDemo
+      const existingSubmission = project.submissions.find(sub =>
+        sub.submittedBy.toString() === req.user._id.toString()
+      );
+
+      if (existingSubmission) {
+        if (repoLink && repoLink.trim()) existingSubmission.repoLink = repoLink.trim();
+        if (liveDemo && liveDemo.trim()) existingSubmission.liveDemo = liveDemo.trim();
+        existingSubmission.status = 'submitted';
+        existingSubmission.submittedAt = new Date();
+      } else {
+        project.submissions.push({
+          submittedBy: req.user._id,
+          status: 'submitted',
+          repoLink: repoLink?.trim() || null,
+          liveDemo: liveDemo?.trim() || null,
+          submittedAt: new Date()
+        });
+      }
+
+      project.status = 'in-progress';
+      await project.save();
+
+      res.json({
+        success: true,
+        message: "Project submitted successfully",
+        project
       });
     }
 
-    // Update project status to 'in-progress' when submitted
-    project.status = 'in-progress';
-    await project.save();
-
-    // TODO: Add notification system here to alert industry user
-    // This could be done via email, in-app notifications, or real-time updates
-
-    res.json({
-      success: true,
-      message: "Project submitted successfully",
-      project
-    });
   } catch (error) {
     console.error("Submit project error:", error);
     res.status(500).json({

@@ -100,12 +100,13 @@ export const uploadToCloudinary = async (fileInput, fileName, mimeType) => {
     }
 
     console.log('Uploading dataURI to Cloudinary');
-    // Upload to Cloudinary
+    // Upload to Cloudinary with increased timeout
     const result = await cloudinary.uploader.upload(dataURI, {
       folder: 'project-portal/messages',
       public_id: `${Date.now()}-${path.parse(fileName).name}`,
       resource_type: resourceType,
       access_mode: 'public',
+      timeout: 60000, // 60 seconds timeout
     });
 
     console.log('DataURI upload successful');
@@ -122,7 +123,19 @@ export const uploadToCloudinary = async (fileInput, fileName, mimeType) => {
       http_code: error.http_code,
       name: error.name
     });
-    throw new Error('Failed to upload file to cloud storage');
+
+    // Provide more specific error messages
+    if (error.http_code === 499) {
+      throw new Error('Upload timeout - file may be too large or network connection is slow');
+    } else if (error.http_code === 401) {
+      throw new Error('Cloudinary authentication failed - check API credentials');
+    } else if (error.http_code === 403) {
+      throw new Error('Cloudinary access denied - check account permissions');
+    } else if (error.http_code === 413) {
+      throw new Error('File too large - exceeds Cloudinary limits');
+    } else {
+      throw new Error(`Failed to upload file to cloud storage: ${error.message}`);
+    }
   }
 };
 

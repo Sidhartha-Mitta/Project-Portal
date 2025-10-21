@@ -2,6 +2,7 @@ import Project from "../Models/Project.js";
 import Team from "../Models/Team.js";
 import User from "../Models/User.js";
 import cloudinary, { configureCloudinary } from "../utils/cloudinary.js";
+import { sendProjectSubmissionEmail, sendModificationRequestEmail, sendProjectApprovalEmail } from "../utils/emailService.js";
 
 // @desc    Create a new project
 // @route   POST /api/projects
@@ -265,6 +266,16 @@ export const submitProject = async (req, res) => {
           project.status = 'in-progress';
           await project.save();
 
+          // Send email notification to industry
+          try {
+            const teamMembers = project.team.members
+              .filter(member => member.status === 'active')
+              .map(member => member.user);
+            await sendProjectSubmissionEmail(project, teamMembers);
+          } catch (emailError) {
+            console.error('Email sending failed:', emailError);
+          }
+
           res.json({
             success: true,
             message: "Project submitted successfully",
@@ -299,6 +310,16 @@ export const submitProject = async (req, res) => {
 
       project.status = 'in-progress';
       await project.save();
+
+      // Send email notification to industry
+      try {
+        const teamMembers = project.team.members
+          .filter(member => member.status === 'active')
+          .map(member => member.user);
+        await sendProjectSubmissionEmail(project, teamMembers);
+      } catch (emailError) {
+        console.error('Email sending failed:', emailError);
+      }
 
       res.json({
         success: true,
@@ -360,6 +381,25 @@ export const updateSubmissionStatus = async (req, res) => {
     }
 
     await project.save();
+
+    // Send email notifications
+    try {
+      if (status === 'modify') {
+        // Send modification request to all team members
+        const teamMembers = project.team.members
+          .filter(member => member.status === 'active')
+          .map(member => member.user);
+        await sendModificationRequestEmail(project, teamMembers, feedback);
+      } else if (status === 'approved') {
+        // Send project approval to all team members
+        const teamMembers = project.team.members
+          .filter(member => member.status === 'active')
+          .map(member => member.user);
+        await sendProjectApprovalEmail(project, teamMembers);
+      }
+    } catch (emailError) {
+      console.error('Email sending failed:', emailError);
+    }
 
     res.json({
       success: true,

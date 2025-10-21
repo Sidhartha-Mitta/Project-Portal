@@ -2,6 +2,7 @@ import Project from "../Models/Project.js";
 import Team from "../Models/Team.js";
 import User from "../Models/User.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
+import { sendStudentApplicationEmail, sendApplicationStatusEmail } from "../utils/emailService.js";
 
 // @desc    Apply to a project
 // @route   POST /api/projects/:id/apply
@@ -105,6 +106,14 @@ export const applyToProject = async (req, res) => {
     await project.populate('applications.applicant', 'name email avatar profile');
 
     const newApplication = project.applications[project.applications.length - 1];
+
+    // Send email notifications
+    try {
+      await sendStudentApplicationEmail(req.user, project);
+    } catch (emailError) {
+      console.error('Email sending failed:', emailError);
+      // Don't fail the application if email fails
+    }
 
     res.status(201).json({
       success: true,
@@ -232,11 +241,20 @@ export const updateApplicationStatus = async (req, res) => {
 
     if (success) {
       await project.save();
-      
+
       // If accepted, create or update team
       if (status === 'accepted') {
         const studentId = application.applicant._id || application.applicant;
         await createOrUpdateProjectTeam(project, studentId);
+      }
+
+      // Send email notification
+      try {
+        const student = application.applicant;
+        await sendApplicationStatusEmail(student, project, status, feedback);
+      } catch (emailError) {
+        console.error('Email sending failed:', emailError);
+        // Don't fail the application update if email fails
       }
 
       res.json({

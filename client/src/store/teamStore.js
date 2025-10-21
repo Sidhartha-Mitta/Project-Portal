@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import { io } from "socket.io-client";
 
-const API_URL = "http://localhost:5001/api/teams";
-const SOCKET_URL = "http://localhost:5001";
+const API_URL = `${import.meta.env.VITE_BACKEND_API_URL}/teams`;
+const SOCKET_URL = import.meta.env.VITE_BACKEND_API_URL.replace('/api', '');
 
 export const useTeamStore = create((set, get) => ({
   // State

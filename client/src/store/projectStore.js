@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-const API_URL = "http://localhost:5001/api/projects";
+const API_URL = `${import.meta.env.VITE_BACKEND_API_URL}/projects`;
 
 export const useProjectStore = create((set) => ({
   // State

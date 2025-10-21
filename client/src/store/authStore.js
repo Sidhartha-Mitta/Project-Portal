@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-const API_URL = "http://localhost:5001/api/auth";
+const API_URL = `${import.meta.env.VITE_BACKEND_API_URL}/auth`;
 
 const getStoredUser = () => {
   try {

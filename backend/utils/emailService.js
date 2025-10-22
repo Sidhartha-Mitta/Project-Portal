@@ -2,13 +2,28 @@ import nodemailer from 'nodemailer';
 
 // Create transporter
 const createTransporter = () => {
+  const port = Number(process.env.EMAIL_PORT || 587);
+  const service = process.env.EMAIL_SERVICE; // e.g., 'gmail', 'hotmail', etc.
+  const baseConfig = service
+    ? { service }
+    : { host: process.env.EMAIL_HOST || 'smtp.gmail.com', port };
+
   return nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-    port: process.env.EMAIL_PORT || 587,
-    secure: false, // true for 465, false for other ports
+    ...baseConfig,
+    secure: port === 465, // true for 465, false otherwise
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS
+    },
+    pool: true,
+    maxConnections: Number(process.env.EMAIL_MAX_CONNECTIONS || 3),
+    maxMessages: Number(process.env.EMAIL_MAX_MESSAGES || 100),
+    connectionTimeout: Number(process.env.EMAIL_CONNECTION_TIMEOUT || 20000),
+    greetingTimeout: Number(process.env.EMAIL_GREETING_TIMEOUT || 10000),
+    socketTimeout: Number(process.env.EMAIL_SOCKET_TIMEOUT || 30000),
+    tls: {
+      // Allow overriding TLS verification in environments with intercepting proxies
+      rejectUnauthorized: process.env.EMAIL_TLS_REJECT_UNAUTHORIZED === 'false' ? false : true
     }
   });
 };

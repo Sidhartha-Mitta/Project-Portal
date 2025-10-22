@@ -268,6 +268,8 @@ export const submitProject = async (req, res) => {
 
           // Send email notification to industry
           try {
+            await project.populate('postedBy', 'name email avatar');
+            await project.populate({ path: 'team', populate: { path: 'members.user', select: 'name email avatar' } });
             const teamMembers = project.team.members
               .filter(member => member.status === 'active')
               .map(member => member.user);
@@ -313,6 +315,8 @@ export const submitProject = async (req, res) => {
 
       // Send email notification to industry
       try {
+        await project.populate('postedBy', 'name email avatar');
+        await project.populate({ path: 'team', populate: { path: 'members.user', select: 'name email avatar' } });
         const teamMembers = project.team.members
           .filter(member => member.status === 'active')
           .map(member => member.user);
@@ -344,7 +348,9 @@ export const updateSubmissionStatus = async (req, res) => {
   try {
     const { status, feedback } = req.body;
 
-    const project = await Project.findById(req.params.id);
+    const project = await Project.findById(req.params.id)
+      .populate('postedBy', 'name email avatar')
+      .populate({ path: 'team', populate: { path: 'members.user', select: 'name email avatar' } });
 
     if (!project) {
       return res.status(404).json({
@@ -378,6 +384,8 @@ export const updateSubmissionStatus = async (req, res) => {
     // If approved, mark project as completed
     if (status === 'approved') {
       project.status = 'completed';
+    } else if (status === 'modify') {
+      project.status = 'modify';
     }
 
     await project.save();
@@ -386,15 +394,17 @@ export const updateSubmissionStatus = async (req, res) => {
     try {
       if (status === 'modify') {
         // Send modification request to all team members
-        const teamMembers = project.team.members
+        const teamMembers = (project.team?.members || [])
           .filter(member => member.status === 'active')
-          .map(member => member.user);
+          .map(member => member.user)
+          .filter(Boolean);
         await sendModificationRequestEmail(project, teamMembers, feedback);
       } else if (status === 'approved') {
         // Send project approval to all team members
-        const teamMembers = project.team.members
+        const teamMembers = (project.team?.members || [])
           .filter(member => member.status === 'active')
-          .map(member => member.user);
+          .map(member => member.user)
+          .filter(Boolean);
         await sendProjectApprovalEmail(project, teamMembers);
       }
     } catch (emailError) {

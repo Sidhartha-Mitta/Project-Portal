@@ -336,8 +336,11 @@ export const updateSubmissionStatus = async (req, res) => {
       });
     }
 
-    // Check if user is the project owner
-    if (project.postedBy.toString() !== req.user._id.toString()) {
+    // Check if user is the project owner (supports populated or ObjectId)
+    const ownerId = (project.postedBy && project.postedBy._id)
+      ? project.postedBy._id.toString()
+      : project.postedBy.toString();
+    if (ownerId !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
         message: "Not authorized to update submission status"
@@ -547,7 +550,7 @@ export const getDashboardData = async (req, res) => {
             status: 'active'
           }
         },
-        status: { $in: ['assigned', 'in-progress'] }
+        status: { $in: ['assigned', 'in-progress', 'modify'] }
       })
       .populate('postedBy', 'name email avatar')
       .populate('team')

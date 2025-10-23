@@ -82,10 +82,31 @@ const StudentDashboard = () => {
       [...completedProjects, ...completedFromAccepted, ...completedFromOngoing].map((p) => [p._id, p])
     ).values()
   );
-  const modificationRequests = ongoingProjects.filter((project) =>
-    project.submissions?.some(
-      (sub) => sub.status === "changes-requested" || sub.status === "modify"
-    )
+  const modificationRequests = Array.from(
+    new Map(
+      [
+        // Ongoing projects explicitly marked modify
+        ...ongoingProjects.filter(
+          (p) => (p.status || "").trim().toLowerCase() === "modify"
+        ),
+        // Ongoing projects with any submission asking for modify
+        ...ongoingProjects.filter((project) =>
+          project.submissions?.some(
+            (sub) => (sub.status || "").trim().toLowerCase() === "modify"
+          )
+        ),
+        // Accepted projects explicitly marked modify (fallback)
+        ...acceptedProjects.filter(
+          (p) => (p.status || "").trim().toLowerCase() === "modify"
+        ),
+        // Accepted projects with any submission asking for modify (fallback)
+        ...acceptedProjects.filter((project) =>
+          project.submissions?.some(
+            (sub) => (sub.status || "").trim().toLowerCase() === "modify"
+          )
+        ),
+      ].map((p) => [p._id, p])
+    ).values()
   );
 
   // Derived counts for consistent Overview metrics

@@ -1,24 +1,40 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaTimes, FaCheck, FaTimes as FaReject, FaComment, FaDownload, FaExternalLinkAlt } from 'react-icons/fa';
 import { useProjectStore } from '../../store/projectStore';
 import toast from 'react-hot-toast';
 
 const ProjectSubmissionsModal = ({ isOpen, onClose, project }) => {
-  const { updateSubmissionStatus, loading } = useProjectStore();
+  const { updateSubmissionStatus, getDashboardData, loading } = useProjectStore();
   const [feedback, setFeedback] = useState('');
+  const [localProject, setLocalProject] = useState(project);
+  const [submissions, setSubmissions] = useState(project?.submissions || []);
+
+  useEffect(() => {
+    setLocalProject(project);
+    setSubmissions(project?.submissions || []);
+  }, [project]);
 
   const handleStatusUpdate = async (submissionId, status) => {
     try {
-      await updateSubmissionStatus(project._id, submissionId, status, feedback);
+      const updated = await updateSubmissionStatus(project._id, submissionId, status, feedback);
       toast.success(`Submission ${status} successfully!`);
       setFeedback('');
+      // Optimistically update local UI
+      setSubmissions((prev) => prev.map((s) => s._id === submissionId ? { ...s, status, feedback: status === 'modify' ? feedback : s.feedback, feedbackAt: status === 'modify' ? new Date().toISOString() : s.feedbackAt } : s));
+      // Update local project status if backend would change it
+      if (status === 'modify') {
+        setLocalProject((p) => ({ ...p, status: 'modify' }));
+      } else if (status === 'approved') {
+        setLocalProject((p) => ({ ...p, status: 'completed' }));
+      }
+      // Refresh dashboard data so parent lists reflect changes
+      getDashboardData?.();
     } catch (error) {
       toast.error(error.message || 'Failed to update submission');
     }
   };
 
-  const submissions = project?.submissions || [];
 
   return (
     <AnimatePresence>

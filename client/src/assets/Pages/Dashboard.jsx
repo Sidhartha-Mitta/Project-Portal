@@ -29,6 +29,22 @@ const Dashboard = () => {
   const ongoingProjects = dashboardData?.ongoingProjects || [];
   const completedProjects = dashboardData?.completedProjects || [];
   const postedProjects = dashboardData?.postedProjects || [];
+  const modificationRequests = Array.from(
+    new Map(
+      [
+        // Projects explicitly marked modify
+        ...ongoingProjects.filter(
+          (p) => (p.status || '').trim().toLowerCase() === 'modify'
+        ),
+        // Projects with any submission asking for modify
+        ...ongoingProjects.filter((project) =>
+          project.submissions?.some(
+            (sub) => (sub.status || '').trim().toLowerCase() === 'modify'
+          )
+        ),
+      ].map((p) => [p._id, p])
+    ).values()
+  );
 
   // Enhanced chart data
   const statusChartData = [
@@ -527,6 +543,7 @@ const Dashboard = () => {
                 { id: 'applied', label: 'Applied Projects', count: appliedProjects.length },
                 { id: 'accepted', label: 'Accepted Projects', count: analyticsData.acceptedCount || 0 },
                 { id: 'rejected', label: 'Rejected Projects', count: rejectedProjects.length },
+                { id: 'modifications', label: 'Modifications Requested', count: modificationRequests.length },
                 { id: 'completed', label: 'Completed Projects', count: completedProjects.length }
               ] : [
                 { id: 'posted', label: 'Posted Projects', count: postedProjects.length },
@@ -555,6 +572,7 @@ const Dashboard = () => {
                   {activeTab === 'applied' && renderProjects(appliedProjects, 'applied')}
                   {activeTab === 'accepted' && renderProjects(acceptedProjects, 'accepted')}
                   {activeTab === 'rejected' && renderProjects(rejectedProjects, 'rejected')}
+                  {activeTab === 'modifications' && renderProjects(modificationRequests, 'ongoing')}
                   {activeTab === 'completed' && renderProjects(completedProjects, 'completed')}
                 </>
               ) : (

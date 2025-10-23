@@ -68,30 +68,40 @@ const StudentDashboard = () => {
   const rejectedProjects = dashboardData?.rejectedProjects || [];
   const completedProjects = dashboardData?.completedProjects || [];
   const ongoingProjects = dashboardData?.ongoingProjects || [];
+  const filteredAcceptedProjects = acceptedProjects.filter(
+    (p) => (p.status || "").trim().toLowerCase() !== "completed"
+  );
+  const completedFromAccepted = acceptedProjects.filter(
+    (p) => (p.status || "").trim().toLowerCase() === "completed"
+  );
+  const completedFromOngoing = ongoingProjects.filter(
+    (p) => (p.status || "").trim().toLowerCase() === "completed"
+  );
+  const computedCompletedProjects = Array.from(
+    new Map(
+      [...completedProjects, ...completedFromAccepted, ...completedFromOngoing].map((p) => [p._id, p])
+    ).values()
+  );
   const modificationRequests = ongoingProjects.filter((project) =>
     project.submissions?.some(
       (sub) => sub.status === "changes-requested" || sub.status === "modify"
     )
   );
 
+  // Derived counts for consistent Overview metrics
+  const derivedCounts = {
+    applied: appliedProjects.length,
+    accepted: filteredAcceptedProjects.length,
+    rejected: rejectedProjects.length,
+    completed: computedCompletedProjects.length,
+  };
+
   // Chart data
   const statusChartData = [
-    {
-      name: "Applied",
-      value: analyticsData.appliedCount || 0,
-      color: "#3B82F6",
-    },
-    {
-      name: "Accepted",
-      value: analyticsData.acceptedCount || 0,
-      color: "#10B981",
-    },
-    { name: "Rejected", value: rejectedProjects.length, color: "#EF4444" },
-    {
-      name: "Completed",
-      value: analyticsData.completedCount || 0,
-      color: "#8B5CF6",
-    },
+    { name: "Applied", value: derivedCounts.applied, color: "#3B82F6" },
+    { name: "Accepted", value: derivedCounts.accepted, color: "#10B981" },
+    { name: "Rejected", value: derivedCounts.rejected, color: "#EF4444" },
+    { name: "Completed", value: derivedCounts.completed, color: "#8B5CF6" },
   ];
 
   const ratingsTrendData = analyticsData.ratingsTrend || [
@@ -104,9 +114,9 @@ const StudentDashboard = () => {
   ];
 
   const projectStatusData = [
-    { name: "Applied", value: analyticsData.appliedCount || 0 },
-    { name: "Accepted", value: analyticsData.acceptedCount || 0 },
-    { name: "Completed", value: analyticsData.completedCount || 0 },
+    { name: "Applied", value: derivedCounts.applied },
+    { name: "Accepted", value: derivedCounts.accepted },
+    { name: "Completed", value: derivedCounts.completed },
   ];
 
   const renderProjects = (projects, type) => {
@@ -351,7 +361,7 @@ const StudentDashboard = () => {
                   id: "accepted",
                   label: "Accepted Projects",
                   icon: FaCheckCircle,
-                  count: analyticsData.acceptedCount || 0,
+                  count: filteredAcceptedProjects.length,
                 },
                 {
                   id: "modifications",
@@ -363,7 +373,7 @@ const StudentDashboard = () => {
                   id: "completed",
                   label: "Completed Projects",
                   icon: FaTrophy,
-                  count: completedProjects.length,
+                  count: computedCompletedProjects.length,
                 },
                 { id: "analytics", label: "Analytics", icon: FaChartLine },
               ].map((tab) => (
@@ -427,14 +437,14 @@ const StudentDashboard = () => {
                 {[
                   {
                     title: "Applied Projects",
-                    value: analyticsData.appliedCount,
+                    value: derivedCounts.applied,
                     icon: FaClock,
                     gradient: "from-blue-500 to-blue-600",
                     description: "Applications submitted",
                   },
                   {
                     title: "Accepted Projects",
-                    value: analyticsData.acceptedCount,
+                    value: derivedCounts.accepted,
                     icon: FaCheckCircle,
                     gradient: "from-green-500 to-emerald-500",
                     description: "Applications accepted",
@@ -448,7 +458,7 @@ const StudentDashboard = () => {
                   },
                   {
                     title: "Completed Projects",
-                    value: analyticsData.completedCount,
+                    value: derivedCounts.completed,
                     icon: FaTrophy,
                     gradient: "from-purple-500 to-pink-500",
                     description: "Projects finished",
@@ -577,7 +587,7 @@ const StudentDashboard = () => {
                 Accepted Projects
               </h2>
               <div className="space-y-6">
-                {renderProjects(acceptedProjects, "accepted")}
+                {renderProjects(filteredAcceptedProjects, "accepted")}
               </div>
             </motion.div>
           )}
@@ -613,7 +623,7 @@ const StudentDashboard = () => {
                 Completed Projects
               </h2>
               <div className="space-y-6">
-                {renderProjects(completedProjects, "completed")}
+                {renderProjects(computedCompletedProjects, "completed")}
               </div>
             </motion.div>
           )}

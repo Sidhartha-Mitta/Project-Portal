@@ -36,7 +36,10 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
-    const allowedOrigins = ['http://localhost:5173'];
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'https://projectportal-xki3.onrender.com'
+    ];
     if (process.env.FRONTEND_URL) {
       allowedOrigins.push(process.env.FRONTEND_URL);
     }
@@ -47,13 +50,20 @@ app.use(cors({
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 204
 }));
 
 // Socket.IO setup
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:5173', process.env.FRONTEND_URL],
+    origin: [
+      'http://localhost:5173',
+      'https://projectportal-xki3.onrender.com',
+      process.env.FRONTEND_URL
+    ],
     credentials: true
   }
 });

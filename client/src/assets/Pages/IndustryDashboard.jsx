@@ -1,22 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import { motion,AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import { useAuthStore } from '../../store/authStore';
 import { useProjectStore } from '../../store/projectStore';
-import { FaProjectDiagram, FaCheckCircle, FaClock, FaStar, FaEye, FaTrash, FaComment, FaEdit, FaGithub, FaDownload, FaExternalLinkAlt, FaChartLine, FaUsers, FaFilter, FaPlus, FaArrowRight } from 'react-icons/fa';
+import { FaCheckCircle } from 'react-icons/fa';
+import { FaProjectDiagram, FaClock, FaStar, FaEye, FaTrash, FaComment, FaEdit, FaGithub, FaDownload, FaExternalLinkAlt, FaChartLine, FaUsers, FaFilter, FaPlus, FaArrowRight } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import ProjectSubmissionsModal from '../Common/ProjectSubmissionsModal';
 import ProjectRatingModal from '../Common/ProjectRatingModal';
 
 const IndustryDashboard = () => {
   motion;
+  const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { dashboardData, getDashboardData, loading } = useProjectStore();
+  const { dashboardData, getDashboardData, loading, approveProject } = useProjectStore();
   const [activeSection, setActiveSection] = useState('overview');
   const [submissionsModal, setSubmissionsModal] = useState({ isOpen: false, project: null });
   const [ratingModal, setRatingModal] = useState({ isOpen: false, project: null });
   const [editModal, setEditModal] = useState({ isOpen: false, project: null });
   const [feedbackFilter, setFeedbackFilter] = useState({ project: '', rating: '', date: '' });
+
+  const handleApproveProject = async (projectId) => {
+    try {
+      await approveProject(projectId);
+      toast.success('Project approved and marked as completed!');
+      getDashboardData(); // Refresh dashboard data
+    } catch (error) {
+      toast.error(error.message || 'Failed to approve project');
+    }
+  };
 
   useEffect(() => {
     getDashboardData();
@@ -162,7 +175,7 @@ const IndustryDashboard = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => toast.info('View applicants functionality to be implemented')}
+                onClick={() => navigate(`/projects/${project._id}/applicants`)}
                 className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 flex items-center shadow-md"
               >
                 <FaEye className="mr-2" />
@@ -206,11 +219,11 @@ const IndustryDashboard = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => setRatingModal({ isOpen: true, project })}
+                onClick={() => handleApproveProject(project._id)}
                 className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 flex items-center shadow-md"
               >
                 <FaCheckCircle className="mr-2" />
-                Mark as Complete
+                Approve & Complete
               </motion.button>
               <motion.button
                 whileHover={{ scale: 1.05 }}

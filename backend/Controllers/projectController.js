@@ -2,7 +2,6 @@ import Project from "../Models/Project.js";
 import Team from "../Models/Team.js";
 import User from "../Models/User.js";
 import cloudinary, { configureCloudinary } from "../utils/cloudinary.js";
-import { sendProjectSubmissionEmail, sendModificationRequestEmail, sendProjectApprovalEmail } from "../utils/emailService.js";
 
 // @desc    Create a new project
 // @route   POST /api/projects
@@ -266,17 +265,6 @@ export const submitProject = async (req, res) => {
           project.status = 'in-progress';
           await project.save();
 
-          // Send email notification to industry
-          try {
-            await project.populate('postedBy', 'name email avatar');
-            await project.populate({ path: 'team', populate: { path: 'members.user', select: 'name email avatar' } });
-            const teamMembers = project.team.members
-              .filter(member => member.status === 'active')
-              .map(member => member.user);
-            await sendProjectSubmissionEmail(project, teamMembers);
-          } catch (emailError) {
-            console.error('Email sending failed:', emailError);
-          }
 
           res.json({
             success: true,
@@ -313,17 +301,6 @@ export const submitProject = async (req, res) => {
       project.status = 'in-progress';
       await project.save();
 
-      // Send email notification to industry
-      try {
-        await project.populate('postedBy', 'name email avatar');
-        await project.populate({ path: 'team', populate: { path: 'members.user', select: 'name email avatar' } });
-        const teamMembers = project.team.members
-          .filter(member => member.status === 'active')
-          .map(member => member.user);
-        await sendProjectSubmissionEmail(project, teamMembers);
-      } catch (emailError) {
-        console.error('Email sending failed:', emailError);
-      }
 
       res.json({
         success: true,
@@ -390,26 +367,6 @@ export const updateSubmissionStatus = async (req, res) => {
 
     await project.save();
 
-    // Send email notifications
-    try {
-      if (status === 'modify') {
-        // Send modification request to all team members
-        const teamMembers = (project.team?.members || [])
-          .filter(member => member.status === 'active')
-          .map(member => member.user)
-          .filter(Boolean);
-        await sendModificationRequestEmail(project, teamMembers, feedback);
-      } else if (status === 'approved') {
-        // Send project approval to all team members
-        const teamMembers = (project.team?.members || [])
-          .filter(member => member.status === 'active')
-          .map(member => member.user)
-          .filter(Boolean);
-        await sendProjectApprovalEmail(project, teamMembers);
-      }
-    } catch (emailError) {
-      console.error('Email sending failed:', emailError);
-    }
 
     res.json({
       success: true,
@@ -425,6 +382,63 @@ export const updateSubmissionStatus = async (req, res) => {
   }
 };
 
+// @desc    Approve project (approve latest submission and mark as completed)
+// @route   PUT /api/projects/:id/approve
+// @access  Private (Project owner only)
+export const approveProject = async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id).populate('team');
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found"
+      });
+    }
+
+    // Check if user is the project owner
+    if (project.postedBy.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "Not authorized to approve this project"
+      });
+    }
+
+    // Check if project has submissions
+    if (!project.submissions || project.submissions.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No submissions found to approve"
+      });
+    }
+
+    // Find the latest submission
+    const latestSubmission = project.submissions[project.submissions.length - 1];
+
+    // Update the latest submission status to approved
+    latestSubmission.status = 'approved';
+    latestSubmission.feedback = 'Project approved and completed';
+    latestSubmission.feedbackAt = new Date();
+
+    // Set project status to completed
+    project.status = 'completed';
+
+    await project.save();
+
+    res.json({
+      success: true,
+      message: "Project approved and marked as completed successfully",
+      project
+    });
+  } catch (error) {
+    console.error("Approve project error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 // @desc    Rate project and team members
 // @route   POST /api/projects/:id/rate
 // @access  Private (Project owner only)
@@ -432,7 +446,12 @@ export const rateProject = async (req, res) => {
   try {
     const { rating, comment, memberRatings } = req.body;
 
-    const project = await Project.findById(req.params.id).populate('team');
+    const project = await Project.findById(req.params.id)
+      .populate('team')
+      .populate({
+        path: 'team.members.user',
+        select: 'name email avatar'
+      });
 
     if (!project) {
       return res.status(404).json({
@@ -522,22 +541,36 @@ export const getDashboardData = async (req, res) => {
 
       // Get ongoing projects (assigned to teams where user is member)
       ongoingProjects = await Project.find({
-        'team.members.user': req.user._id,
-        'team.members.status': 'active',
+        'team.members': {
+          $elemMatch: {
+            user: req.user._id,
+            status: 'active'
+          }
+        },
         status: { $in: ['assigned', 'in-progress'] }
       })
       .populate('postedBy', 'name email avatar')
       .populate('team')
       .sort({ createdAt: -1 });
 
-      // Get completed projects
+      // Get completed projects - find projects where user is a team member and status is completed
       completedProjects = await Project.find({
-        'team.members.user': req.user._id,
-        'team.members.status': 'active',
+        'team.members': {
+          $elemMatch: {
+            user: req.user._id,
+            status: 'active'
+          }
+        },
         status: 'completed'
       })
       .populate('postedBy', 'name email avatar')
-      .populate('ratings')
+      .populate({
+        path: 'ratings',
+        populate: {
+          path: 'memberRatings.member',
+          select: 'name email avatar'
+        }
+      })
       .sort({ createdAt: -1 });
 
     } else if (req.user.role === 'industry') {
@@ -545,7 +578,13 @@ export const getDashboardData = async (req, res) => {
       postedProjects = await Project.find({
         postedBy: req.user._id
       })
-      .populate('team')
+      .populate({
+        path: 'team',
+        populate: {
+          path: 'members.user',
+          select: 'name email avatar'
+        }
+      })
       .populate('submissions.submittedBy', 'name email avatar')
       .sort({ createdAt: -1 });
 
@@ -555,7 +594,13 @@ export const getDashboardData = async (req, res) => {
         status: { $in: ['assigned', 'in-progress', 'modify'] },
         team: { $exists: true, $ne: null }
       })
-      .populate('team')
+      .populate({
+        path: 'team',
+        populate: {
+          path: 'members.user',
+          select: 'name email avatar'
+        }
+      })
       .populate('submissions.submittedBy', 'name email avatar')
       .sort({ createdAt: -1 });
 
@@ -564,7 +609,13 @@ export const getDashboardData = async (req, res) => {
         postedBy: req.user._id,
         status: 'completed'
       })
-      .populate('team')
+      .populate({
+        path: 'team',
+        populate: {
+          path: 'members.user',
+          select: 'name email avatar'
+        }
+      })
       .populate('ratings')
       .sort({ createdAt: -1 });
     }

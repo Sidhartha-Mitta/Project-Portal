@@ -330,6 +330,49 @@ export const useProjectStore = create((set) => ({
     }
   },
 
+  // Approve project
+  approveProject: async (projectId) => {
+    set({ loading: true, error: null });
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Authentication required");
+      }
+
+      const response = await fetch(`${API_URL}/${projectId}/approve`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: 'include',
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to approve project");
+      }
+
+      // Refresh dashboard data
+      const dashboardResponse = await fetch(`${API_URL}/dashboard/data`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: 'include',
+      });
+      if (dashboardResponse.ok) {
+        const dashboardResult = await dashboardResponse.json();
+        set({ dashboardData: dashboardResult.data });
+      }
+
+      set({ loading: false });
+      return result.project;
+    } catch (error) {
+      set({ error: error.message, loading: false });
+      throw error;
+    }
+  },
+
   // Rate project
   rateProject: async (projectId, ratingData) => {
     set({ loading: true, error: null });

@@ -19,7 +19,6 @@ import toast from 'react-hot-toast';
 const TeamChat = ({ team, isOpen, onClose }) => {
   const {
     messages,
-    loading,
     getMessages,
     handleSendMessage: handleSendMessageFromStore,
     addReaction,
@@ -754,7 +753,7 @@ const TeamChat = ({ team, isOpen, onClose }) => {
 
               <motion.button
                 onClick={handleSendMessage}
-                disabled={(!newMessage.trim() && !selectedFile) || loading}
+                disabled={!newMessage.trim() && !selectedFile}
                 className={`p-2 rounded-full ${
                   newMessage.trim() || selectedFile
                     ? 'bg-[#00a884] text-white'

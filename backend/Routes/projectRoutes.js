@@ -10,6 +10,7 @@ import {
   getProjectsForSession,
   submitProject,
   updateSubmissionStatus,
+  approveProject,
   rateProject,
   getDashboardData
 } from '../Controllers/projectController.js';
@@ -74,6 +75,9 @@ router.put('/:projectId/applications/:applicationId', protect, updateApplication
 // Submission routes
 router.post('/:id/submit', protect, submissionUpload.single('zipFile'), submitProject);
 router.put('/:id/submissions/:submissionId', protect, updateSubmissionStatus);
+
+// Approval routes
+router.put('/:id/approve', protect, approveProject);
 
 // Rating routes
 router.post('/:id/rate', protect, rateProject);

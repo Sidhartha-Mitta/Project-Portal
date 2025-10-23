@@ -1,20 +1,62 @@
-import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area } from 'recharts';
-import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../../store/authStore';
-import { useProjectStore } from '../../store/projectStore';
-import { FaProjectDiagram, FaCheckCircle, FaClock, FaStar, FaUpload, FaEye, FaComment, FaChartLine, FaTrophy, FaFire, FaTimes, FaGithub, FaDownload, FaExternalLinkAlt, FaCalendarAlt, FaUser, FaExclamationTriangle } from 'react-icons/fa';
-import ProjectSubmissionModal from '../Common/ProjectSubmissionModal';
+import React, { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+} from "recharts";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../store/authStore";
+import { useProjectStore } from "../../store/projectStore";
+import {
+  FaProjectDiagram,
+  FaCheckCircle,
+  FaClock,
+  FaStar,
+  FaUpload,
+  FaEye,
+  FaComment,
+  FaChartLine,
+  FaTrophy,
+  FaFire,
+  FaTimes,
+  FaGithub,
+  FaDownload,
+  FaExternalLinkAlt,
+  FaCalendarAlt,
+  FaUser,
+  FaExclamationTriangle,
+} from "react-icons/fa";
+import ProjectSubmissionModal from "../Common/ProjectSubmissionModal";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { dashboardData, getDashboardData, loading } = useProjectStore();
-  const [activeSection, setActiveSection] = useState('overview');
-  const [submissionModal, setSubmissionModal] = useState({ isOpen: false, project: null });
-  const [detailsModal, setDetailsModal] = useState({ isOpen: false, project: null });
-  const [feedbackModal, setFeedbackModal] = useState({ isOpen: false, project: null });
+  const [activeSection, setActiveSection] = useState("overview");
+  const [submissionModal, setSubmissionModal] = useState({
+    isOpen: false,
+    project: null,
+  });
+  const [detailsModal, setDetailsModal] = useState({
+    isOpen: false,
+    project: null,
+  });
+  const [feedbackModal, setFeedbackModal] = useState({
+    isOpen: false,
+    project: null,
+  });
 
   useEffect(() => {
     getDashboardData();
@@ -26,31 +68,45 @@ const StudentDashboard = () => {
   const rejectedProjects = dashboardData?.rejectedProjects || [];
   const completedProjects = dashboardData?.completedProjects || [];
   const ongoingProjects = dashboardData?.ongoingProjects || [];
-  const modificationRequests = ongoingProjects.filter(project =>
-    project.submissions?.some(sub => sub.status === 'changes-requested' || sub.status === 'modify')
+  const modificationRequests = ongoingProjects.filter((project) =>
+    project.submissions?.some(
+      (sub) => sub.status === "changes-requested" || sub.status === "modify"
+    )
   );
 
   // Chart data
   const statusChartData = [
-    { name: 'Applied', value: analyticsData.appliedCount || 0, color: '#3B82F6' },
-    { name: 'Accepted', value: analyticsData.acceptedCount || 0, color: '#10B981' },
-    { name: 'Rejected', value: rejectedProjects.length, color: '#EF4444' },
-    { name: 'Completed', value: analyticsData.completedCount || 0, color: '#8B5CF6' }
+    {
+      name: "Applied",
+      value: analyticsData.appliedCount || 0,
+      color: "#3B82F6",
+    },
+    {
+      name: "Accepted",
+      value: analyticsData.acceptedCount || 0,
+      color: "#10B981",
+    },
+    { name: "Rejected", value: rejectedProjects.length, color: "#EF4444" },
+    {
+      name: "Completed",
+      value: analyticsData.completedCount || 0,
+      color: "#8B5CF6",
+    },
   ];
 
   const ratingsTrendData = analyticsData.ratingsTrend || [
-    { month: 'Jan', rating: 4.2 },
-    { month: 'Feb', rating: 4.5 },
-    { month: 'Mar', rating: 4.1 },
-    { month: 'Apr', rating: 4.8 },
-    { month: 'May', rating: 4.6 },
-    { month: 'Jun', rating: 4.9 }
+    { month: "Jan", rating: 4.2 },
+    { month: "Feb", rating: 4.5 },
+    { month: "Mar", rating: 4.1 },
+    { month: "Apr", rating: 4.8 },
+    { month: "May", rating: 4.6 },
+    { month: "Jun", rating: 4.9 },
   ];
 
   const projectStatusData = [
-    { name: 'Applied', value: analyticsData.appliedCount || 0 },
-    { name: 'Accepted', value: analyticsData.acceptedCount || 0 },
-    { name: 'Completed', value: analyticsData.completedCount || 0 }
+    { name: "Applied", value: analyticsData.appliedCount || 0 },
+    { name: "Accepted", value: analyticsData.acceptedCount || 0 },
+    { name: "Completed", value: analyticsData.completedCount || 0 },
   ];
 
   const renderProjects = (projects, type) => {
@@ -66,54 +122,77 @@ const StudentDashboard = () => {
       );
     }
 
-    return projects.map((project, index) => (
-      <motion.div
+    return projects.map((project) => (
+      <div
         key={project._id}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: index * 0.1 }}
         className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
       >
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900">{project.title}</h3>
+            <h3 className="text-lg font-semibold text-gray-900">
+              {project.title}
+            </h3>
             <p className="text-gray-600 text-sm mt-1">{project.description}</p>
             <div className="flex items-center mt-2">
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                project.status === 'completed' ? 'bg-green-100 text-green-800' :
-                project.status === 'modify' ? 'bg-orange-100 text-orange-800' :
-                project.status === 'in-progress' || project.status === 'assigned' ? 'bg-yellow-100 text-yellow-800' :
-                project.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                'bg-blue-100 text-blue-800'
-              }`}>
-                {type === 'modifications' ? 'Modifications Requested' : project.status}
+              <span
+                className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  project.status === "completed"
+                    ? "bg-green-100 text-green-800"
+                    : project.status === "modify"
+                    ? "bg-orange-100 text-orange-800"
+                    : project.status === "in-progress" ||
+                      project.status === "assigned"
+                    ? "bg-yellow-100 text-yellow-800"
+                    : project.status === "rejected"
+                    ? "bg-red-100 text-red-800"
+                    : "bg-blue-100 text-blue-800"
+                }`}
+              >
+                {type === "modifications"
+                  ? "Modifications Requested"
+                  : project.status}
               </span>
-              {type === 'modifications' && (
+              {type === "modifications" && (
                 <span className="ml-2 flex items-center text-orange-600">
                   <FaExclamationTriangle className="mr-1" />
                   Needs Revision
                 </span>
               )}
-              {type === 'completed' && (
-                <span className="ml-2 flex items-center text-yellow-500">
-                  <FaStar className="mr-1" />
-                  {project.ratings?.[0]?.memberRatings?.find(r => r.member === user._id)?.rating || 'N/A'}
-                </span>
-              )}
+              {type === "completed" &&
+                project.ratings?.[0]?.memberRatings?.find(
+                  (r) => r.member === user._id
+                ) && (
+                  <span className="ml-2 flex items-center text-yellow-500">
+                    <FaStar className="mr-1" />
+                    {
+                      project.ratings[0].memberRatings.find(
+                        (r) => r.member === user._id
+                      ).rating
+                    }
+                    /5
+                  </span>
+                )}
             </div>
-            {type === 'accepted' && project.deadline && (
+            {type === "accepted" && project.deadline && (
               <div className="mt-2 text-sm text-gray-600">
                 <FaCalendarAlt className="inline mr-1" />
-                <strong>Deadline:</strong> {new Date(project.deadline).toLocaleDateString()}
+                <strong>Deadline:</strong>{" "}
+                {new Date(project.deadline).toLocaleDateString()}
               </div>
             )}
-            {type === 'completed' && project.submissions?.length > 0 && (
+            {type === "completed" && project.submissions?.length > 0 && (
               <div className="mt-3">
-                <h4 className="text-sm font-semibold text-gray-800 mb-2">Submission Links:</h4>
+                <h4 className="text-sm font-semibold text-gray-800 mb-2">
+                  Submission Links:
+                </h4>
                 <div className="flex flex-wrap gap-2">
-                  {project.submissions[project.submissions.length - 1]?.repoLink && (
+                  {project.submissions[project.submissions.length - 1]
+                    ?.repoLink && (
                     <a
-                      href={project.submissions[project.submissions.length - 1].repoLink}
+                      href={
+                        project.submissions[project.submissions.length - 1]
+                          .repoLink
+                      }
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center bg-gray-800 text-white px-3 py-1 rounded-lg hover:bg-gray-900 transition-colors text-xs"
@@ -122,19 +201,30 @@ const StudentDashboard = () => {
                       GitHub
                     </a>
                   )}
-                  {project.submissions[project.submissions.length - 1]?.zipFile && (
+                  {project.submissions[project.submissions.length - 1]
+                    ?.zipFile && (
                     <a
-                      href={project.submissions[project.submissions.length - 1].zipFile.url}
-                      download={project.submissions[project.submissions.length - 1].zipFile.filename}
+                      href={
+                        project.submissions[project.submissions.length - 1]
+                          .zipFile.url
+                      }
+                      download={
+                        project.submissions[project.submissions.length - 1]
+                          .zipFile.filename
+                      }
                       className="flex items-center bg-green-600 text-white px-3 py-1 rounded-lg hover:bg-green-700 transition-colors text-xs"
                     >
                       <FaDownload className="mr-1" />
                       ZIP
                     </a>
                   )}
-                  {project.submissions[project.submissions.length - 1]?.liveDemo && (
+                  {project.submissions[project.submissions.length - 1]
+                    ?.liveDemo && (
                     <a
-                      href={project.submissions[project.submissions.length - 1].liveDemo}
+                      href={
+                        project.submissions[project.submissions.length - 1]
+                          .liveDemo
+                      }
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center bg-purple-600 text-white px-3 py-1 rounded-lg hover:bg-purple-700 transition-colors text-xs"
@@ -146,20 +236,29 @@ const StudentDashboard = () => {
                 </div>
               </div>
             )}
-            {type === 'modifications' && project.submissions?.length > 0 && (
+            {type === "modifications" && project.submissions?.length > 0 && (
               <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                <h4 className="text-sm font-semibold text-orange-800 mb-2">Latest Feedback:</h4>
+                <h4 className="text-sm font-semibold text-orange-800 mb-2">
+                  Latest Feedback:
+                </h4>
                 <p className="text-sm text-orange-700">
-                  {project.submissions[project.submissions.length - 1]?.feedback || 'Please review and resubmit your project with the requested changes.'}
+                  {project.submissions[project.submissions.length - 1]
+                    ?.feedback ||
+                    "Please review and resubmit your project with the requested changes."}
                 </p>
                 <p className="text-xs text-orange-600 mt-1">
-                  Feedback received: {new Date(project.submissions[project.submissions.length - 1]?.feedbackAt).toLocaleDateString()}
+                  Feedback received:{" "}
+                  {new Date(
+                    project.submissions[
+                      project.submissions.length - 1
+                    ]?.feedbackAt
+                  ).toLocaleDateString()}
                 </p>
               </div>
             )}
           </div>
           <div className="flex flex-col space-y-2 ml-4">
-            {(type === 'applied' || type === 'accepted') && (
+            {(type === "applied" || type === "accepted") && (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -170,7 +269,7 @@ const StudentDashboard = () => {
                 View Details
               </motion.button>
             )}
-            {type === 'accepted' && (
+            {type === "accepted" && (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -181,7 +280,7 @@ const StudentDashboard = () => {
                 Submit Project
               </motion.button>
             )}
-            {type === 'modifications' && (
+            {type === "modifications" && (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -192,7 +291,7 @@ const StudentDashboard = () => {
                 Resubmit Project
               </motion.button>
             )}
-            {type === 'completed' && (
+            {type === "completed" && (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -209,9 +308,11 @@ const StudentDashboard = () => {
           <FaUser className="mr-1" />
           <span>Industry: {project.postedBy?.name}</span>
           <span className="mx-2">•</span>
-          <span>Applied: {new Date(project.createdAt).toLocaleDateString()}</span>
+          <span>
+            Applied: {new Date(project.createdAt).toLocaleDateString()}
+          </span>
         </div>
-      </motion.div>
+      </div>
     ));
   };
 
@@ -239,20 +340,40 @@ const StudentDashboard = () => {
           <div className="border-b border-gray-200">
             <nav className="flex space-x-8 px-6">
               {[
-                { id: 'overview', label: 'Overview', icon: FaChartLine },
-                { id: 'applied', label: 'Applied Projects', icon: FaClock, count: appliedProjects.length },
-                { id: 'accepted', label: 'Accepted Projects', icon: FaCheckCircle, count: analyticsData.acceptedCount || 0 },
-                { id: 'modifications', label: 'Modifications Requested', icon: FaExclamationTriangle, count: modificationRequests.length },
-                { id: 'completed', label: 'Completed Projects', icon: FaTrophy, count: completedProjects.length },
-                { id: 'analytics', label: 'Analytics', icon: FaChartLine }
+                { id: "overview", label: "Overview", icon: FaChartLine },
+                {
+                  id: "applied",
+                  label: "Applied Projects",
+                  icon: FaClock,
+                  count: appliedProjects.length,
+                },
+                {
+                  id: "accepted",
+                  label: "Accepted Projects",
+                  icon: FaCheckCircle,
+                  count: analyticsData.acceptedCount || 0,
+                },
+                {
+                  id: "modifications",
+                  label: "Modifications Requested",
+                  icon: FaExclamationTriangle,
+                  count: modificationRequests.length,
+                },
+                {
+                  id: "completed",
+                  label: "Completed Projects",
+                  icon: FaTrophy,
+                  count: completedProjects.length,
+                },
+                { id: "analytics", label: "Analytics", icon: FaChartLine },
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveSection(tab.id)}
                   className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center ${
                     activeSection === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? "border-blue-500 text-blue-600"
+                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                   }`}
                 >
                   <tab.icon className="mr-2" />
@@ -278,10 +399,14 @@ const StudentDashboard = () => {
           </p>
           {dashboardData?.overallRating && (
             <div className="mt-4 flex items-center">
-              <span className="text-lg font-semibold text-gray-700 mr-2">Overall Rating:</span>
+              <span className="text-lg font-semibold text-gray-700 mr-2">
+                Overall Rating:
+              </span>
               <div className="flex items-center">
                 <FaStar className="text-yellow-500 mr-1" />
-                <span className="text-xl font-bold text-yellow-600">{dashboardData.overallRating}</span>
+                <span className="text-xl font-bold text-yellow-600">
+                  {dashboardData.overallRating}
+                </span>
               </div>
             </div>
           )}
@@ -289,7 +414,7 @@ const StudentDashboard = () => {
 
         {/* Overview / Analytics Section */}
         <AnimatePresence mode="wait">
-          {activeSection === 'overview' && (
+          {activeSection === "overview" && (
             <motion.div
               key="overview"
               initial={{ opacity: 0, y: 20 }}
@@ -300,25 +425,59 @@ const StudentDashboard = () => {
               {/* Summary Cards */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 {[
-                  { title: 'Applied Projects', value: analyticsData.appliedCount, icon: FaClock, gradient: 'from-blue-500 to-blue-600', description: 'Applications submitted' },
-                  { title: 'Accepted Projects', value: analyticsData.acceptedCount, icon: FaCheckCircle, gradient: 'from-green-500 to-emerald-500', description: 'Applications accepted' },
-                  { title: 'Rejected Projects', value: rejectedProjects.length, icon: FaTimes, gradient: 'from-red-500 to-red-600', description: 'Applications rejected' },
-                  { title: 'Completed Projects', value: analyticsData.completedCount, icon: FaTrophy, gradient: 'from-purple-500 to-pink-500', description: 'Projects finished' }
+                  {
+                    title: "Applied Projects",
+                    value: analyticsData.appliedCount,
+                    icon: FaClock,
+                    gradient: "from-blue-500 to-blue-600",
+                    description: "Applications submitted",
+                  },
+                  {
+                    title: "Accepted Projects",
+                    value: analyticsData.acceptedCount,
+                    icon: FaCheckCircle,
+                    gradient: "from-green-500 to-emerald-500",
+                    description: "Applications accepted",
+                  },
+                  {
+                    title: "Rejected Projects",
+                    value: rejectedProjects.length,
+                    icon: FaTimes,
+                    gradient: "from-red-500 to-red-600",
+                    description: "Applications rejected",
+                  },
+                  {
+                    title: "Completed Projects",
+                    value: analyticsData.completedCount,
+                    icon: FaTrophy,
+                    gradient: "from-purple-500 to-pink-500",
+                    description: "Projects finished",
+                  },
                 ].map((card, index) => (
                   <motion.div
                     key={card.title}
                     initial={{ opacity: 0, scale: 0.9, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ delay: index * 0.1, type: "spring", stiffness: 100 }}
+                    transition={{
+                      delay: index * 0.1,
+                      type: "spring",
+                      stiffness: 100,
+                    }}
                     whileHover={{ scale: 1.05, y: -5 }}
                     className={`bg-gradient-to-br ${card.gradient} rounded-xl shadow-lg p-6 text-white relative overflow-hidden`}
                   >
                     <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10"></div>
                     <div className="relative z-10">
                       <card.icon className="text-3xl mb-2 opacity-80" />
-                      <p className="text-white/80 text-sm font-medium">{card.title}</p>
-                      <p className="text-3xl font-bold mb-1">{card.value || 0}</p>
-                      <p className="text-white/60 text-xs">{card.description}</p>
+                      <p className="text-white/80 text-sm font-medium">
+                        {card.title}
+                      </p>
+                      <p className="text-3xl font-bold mb-1">
+                        {card.value || 0}
+                      </p>
+                      <p className="text-white/60 text-xs">
+                        {card.description}
+                      </p>
                     </div>
                   </motion.div>
                 ))}
@@ -345,7 +504,9 @@ const StudentDashboard = () => {
                         outerRadius={80}
                         fill="#8884d8"
                         dataKey="value"
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        label={({ name, percent }) =>
+                          `${name} ${(percent * 100).toFixed(0)}%`
+                        }
                       >
                         {statusChartData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
@@ -372,7 +533,12 @@ const StudentDashboard = () => {
                       <YAxis domain={[0, 5]} />
                       <CartesianGrid strokeDasharray="3 3" />
                       <Tooltip />
-                      <Line type="monotone" dataKey="rating" stroke="#F59E0B" strokeWidth={3} />
+                      <Line
+                        type="monotone"
+                        dataKey="rating"
+                        stroke="#F59E0B"
+                        strokeWidth={3}
+                      />
                     </LineChart>
                   </ResponsiveContainer>
                 </motion.div>
@@ -381,7 +547,7 @@ const StudentDashboard = () => {
           )}
 
           {/* Applied Projects Section */}
-          {activeSection === 'applied' && (
+          {activeSection === "applied" && (
             <motion.div
               key="applied"
               initial={{ opacity: 0, y: 20 }}
@@ -389,15 +555,17 @@ const StudentDashboard = () => {
               exit={{ opacity: 0, y: -20 }}
               className="bg-white rounded-lg shadow-md p-6"
             >
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Applied Projects</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                Applied Projects
+              </h2>
               <div className="space-y-6">
-                {renderProjects(appliedProjects, 'applied')}
+                {renderProjects(appliedProjects, "applied")}
               </div>
             </motion.div>
           )}
 
           {/* Accepted Projects Section */}
-          {activeSection === 'accepted' && (
+          {activeSection === "accepted" && (
             <motion.div
               key="accepted"
               initial={{ opacity: 0, y: 20 }}
@@ -405,15 +573,17 @@ const StudentDashboard = () => {
               exit={{ opacity: 0, y: -20 }}
               className="bg-white rounded-lg shadow-md p-6"
             >
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Accepted Projects</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                Accepted Projects
+              </h2>
               <div className="space-y-6">
-                {renderProjects(acceptedProjects, 'accepted')}
+                {renderProjects(acceptedProjects, "accepted")}
               </div>
             </motion.div>
           )}
 
           {/* Modifications Requested Section */}
-          {activeSection === 'modifications' && (
+          {activeSection === "modifications" && (
             <motion.div
               key="modifications"
               initial={{ opacity: 0, y: 20 }}
@@ -421,15 +591,17 @@ const StudentDashboard = () => {
               exit={{ opacity: 0, y: -20 }}
               className="bg-white rounded-lg shadow-md p-6"
             >
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Modifications Requested</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                Modifications Requested
+              </h2>
               <div className="space-y-6">
-                {renderProjects(modificationRequests, 'modifications')}
+                {renderProjects(modificationRequests, "modifications")}
               </div>
             </motion.div>
           )}
 
           {/* Completed Projects Section */}
-          {activeSection === 'completed' && (
+          {activeSection === "completed" && (
             <motion.div
               key="completed"
               initial={{ opacity: 0, y: 20 }}
@@ -437,15 +609,17 @@ const StudentDashboard = () => {
               exit={{ opacity: 0, y: -20 }}
               className="bg-white rounded-lg shadow-md p-6"
             >
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Completed Projects</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                Completed Projects
+              </h2>
               <div className="space-y-6">
-                {renderProjects(completedProjects, 'completed')}
+                {renderProjects(completedProjects, "completed")}
               </div>
             </motion.div>
           )}
 
           {/* Analytics Section */}
-          {activeSection === 'analytics' && (
+          {activeSection === "analytics" && (
             <motion.div
               key="analytics"
               initial={{ opacity: 0, y: 20 }}
@@ -453,7 +627,9 @@ const StudentDashboard = () => {
               exit={{ opacity: 0, y: -20 }}
               className="bg-white rounded-lg shadow-md p-6"
             >
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Analytics</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                Analytics
+              </h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
@@ -487,16 +663,36 @@ const StudentDashboard = () => {
                   <ResponsiveContainer width="100%" height={300}>
                     <AreaChart data={ratingsTrendData}>
                       <defs>
-                        <linearGradient id="colorRating" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.8}/>
-                          <stop offset="95%" stopColor="#F59E0B" stopOpacity={0.1}/>
+                        <linearGradient
+                          id="colorRating"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#F59E0B"
+                            stopOpacity={0.8}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#F59E0B"
+                            stopOpacity={0.1}
+                          />
                         </linearGradient>
                       </defs>
                       <XAxis dataKey="month" />
                       <YAxis domain={[0, 5]} />
                       <CartesianGrid strokeDasharray="3 3" />
                       <Tooltip />
-                      <Area type="monotone" dataKey="rating" stroke="#F59E0B" fillOpacity={1} fill="url(#colorRating)" />
+                      <Area
+                        type="monotone"
+                        dataKey="rating"
+                        stroke="#F59E0B"
+                        fillOpacity={1}
+                        fill="url(#colorRating)"
+                      />
                     </AreaChart>
                   </ResponsiveContainer>
                 </motion.div>
@@ -521,38 +717,63 @@ const StudentDashboard = () => {
               className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto"
             >
               <div className="p-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">{detailsModal.project?.title}</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                  {detailsModal.project?.title}
+                </h2>
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">Description</h3>
-                    <p className="text-gray-600">{detailsModal.project?.description}</p>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                      Description
+                    </h3>
+                    <p className="text-gray-600">
+                      {detailsModal.project?.description}
+                    </p>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <h4 className="font-semibold text-gray-800">Industry</h4>
-                      <p className="text-gray-600">{detailsModal.project?.postedBy?.name}</p>
+                      <p className="text-gray-600">
+                        {detailsModal.project?.postedBy?.name}
+                      </p>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-gray-800">Applied Date</h4>
-                      <p className="text-gray-600">{new Date(detailsModal.project?.createdAt).toLocaleDateString()}</p>
+                      <h4 className="font-semibold text-gray-800">
+                        Applied Date
+                      </h4>
+                      <p className="text-gray-600">
+                        {new Date(
+                          detailsModal.project?.createdAt
+                        ).toLocaleDateString()}
+                      </p>
                     </div>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-800">Current Status</h4>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      detailsModal.project?.status === 'completed' ? 'bg-green-100 text-green-800' :
-                      detailsModal.project?.status === 'modify' ? 'bg-orange-100 text-orange-800' :
-                      detailsModal.project?.status === 'in-progress' || detailsModal.project?.status === 'assigned' ? 'bg-yellow-100 text-yellow-800' :
-                      detailsModal.project?.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                      'bg-blue-100 text-blue-800'
-                    }`}>
+                    <h4 className="font-semibold text-gray-800">
+                      Current Status
+                    </h4>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        detailsModal.project?.status === "completed"
+                          ? "bg-green-100 text-green-800"
+                          : detailsModal.project?.status === "modify"
+                          ? "bg-orange-100 text-orange-800"
+                          : detailsModal.project?.status === "in-progress" ||
+                            detailsModal.project?.status === "assigned"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : detailsModal.project?.status === "rejected"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-blue-100 text-blue-800"
+                      }`}
+                    >
                       {detailsModal.project?.status}
                     </span>
                   </div>
                 </div>
                 <div className="mt-6 flex justify-end">
                   <button
-                    onClick={() => setDetailsModal({ isOpen: false, project: null })}
+                    onClick={() =>
+                      setDetailsModal({ isOpen: false, project: null })
+                    }
                     className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
                   >
                     Close
@@ -572,40 +793,99 @@ const StudentDashboard = () => {
               className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto"
             >
               <div className="p-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Project Feedback</h2>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">{feedbackModal.project?.title}</h3>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                  Project Feedback
+                </h2>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  {feedbackModal.project?.title}
+                </h3>
 
                 {feedbackModal.project?.ratings?.[0] ? (
                   <div className="space-y-4">
-                    {feedbackModal.project.ratings[0].memberRatings?.find(r => r.member === user._id) ? (
+                    {/* Overall Project Rating */}
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <div className="flex items-center mb-2">
+                        <FaStar className="text-blue-500 mr-2" />
+                        <span className="font-semibold">
+                          Overall Project Rating:
+                        </span>
+                        <span className="ml-2 text-xl font-bold text-blue-600">
+                          {feedbackModal.project.ratings[0].rating}/5
+                        </span>
+                      </div>
+                      {feedbackModal.project.ratings[0].comment && (
+                        <p className="text-gray-700">
+                          <strong>Project Feedback:</strong>{" "}
+                          {feedbackModal.project.ratings[0].comment}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Individual Student Rating */}
+                    {feedbackModal.project.ratings[0].memberRatings?.find(
+                      (r) => r.member === user._id
+                    ) && (
                       <div className="bg-yellow-50 p-4 rounded-lg">
                         <div className="flex items-center mb-2">
                           <FaStar className="text-yellow-500 mr-2" />
-                          <span className="font-semibold">Your Rating:</span>
+                          <span className="font-semibold">
+                            Your Individual Rating:
+                          </span>
                           <span className="ml-2 text-xl font-bold text-yellow-600">
-                            {feedbackModal.project.ratings[0].memberRatings.find(r => r.member === user._id).rating}/5
+                            {
+                              feedbackModal.project.ratings[0].memberRatings.find(
+                                (r) => r.member === user._id
+                              ).rating
+                            }
+                            /5
                           </span>
                         </div>
-                        {feedbackModal.project.ratings[0].memberRatings.find(r => r.member === user._id).comment && (
+                        {feedbackModal.project.ratings[0].memberRatings.find(
+                          (r) => r.member === user._id
+                        ).feedback && (
                           <p className="text-gray-700">
-                            <strong>Feedback:</strong> {feedbackModal.project.ratings[0].memberRatings.find(r => r.member === user._id).comment}
+                            <strong>Your Feedback:</strong>{" "}
+                            {
+                              feedbackModal.project.ratings[0].memberRatings.find(
+                                (r) => r.member === user._id
+                              ).feedback
+                            }
                           </p>
                         )}
                       </div>
-                    ) : (
-                      <div className="bg-blue-50 p-4 rounded-lg">
-                        <div className="flex items-center mb-2">
-                          <FaStar className="text-blue-500 mr-2" />
-                          <span className="font-semibold">Project Rating:</span>
-                          <span className="ml-2 text-xl font-bold text-blue-600">
-                            {feedbackModal.project.ratings[0].rating}/5
-                          </span>
-                        </div>
-                        <p className="text-gray-700">
-                          <strong>Feedback:</strong> {feedbackModal.project.ratings[0].comment}
-                        </p>
-                      </div>
                     )}
+
+                    {/* Team Member Ratings */}
+                    {feedbackModal.project.ratings[0].memberRatings &&
+                      feedbackModal.project.ratings[0].memberRatings.length >
+                        0 && (
+                        <div className="bg-green-50 p-4 rounded-lg">
+                          <h4 className="font-semibold text-green-800 mb-3">
+                            Team Member Ratings:
+                          </h4>
+                          <div className="space-y-2">
+                            {feedbackModal.project.ratings[0].memberRatings.map(
+                              (memberRating, index) => (
+                                <div
+                                  key={index}
+                                  className="flex items-center justify-between bg-white p-2 rounded"
+                                >
+                                  <span className="text-sm font-medium text-gray-700">
+                                    {memberRating.member?.name ||
+                                      `Team Member ${index + 1}`}
+                                  </span>
+                                  <div className="flex items-center">
+                                    <FaStar className="text-yellow-500 mr-1" />
+                                    <span className="font-bold text-yellow-600">
+                                      {memberRating.rating}/5
+                                    </span>
+                                  </div>
+                                </div>
+                              )
+                            )}
+                          </div>
+                        </div>
+                      )}
                   </div>
                 ) : (
                   <p className="text-gray-500">No feedback available yet.</p>
@@ -613,7 +893,9 @@ const StudentDashboard = () => {
 
                 <div className="mt-6 flex justify-end">
                   <button
-                    onClick={() => setFeedbackModal({ isOpen: false, project: null })}
+                    onClick={() =>
+                      setFeedbackModal({ isOpen: false, project: null })
+                    }
                     className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
                   >
                     Close

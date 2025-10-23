@@ -497,119 +497,156 @@ const ProjectApplicants = () => {
                 </div>
 
                 {/* Application Details */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Left Column */}
-                  <div className="space-y-6">
-                    {/* Contact Information */}
-                    <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                      <h3 className="text-lg font-bold text-white mb-4 flex items-center">
-                        <UserIcon className="h-5 w-5 mr-2" />
-                        Contact Information
-                      </h3>
-                      <div className="space-y-3">
+                <div className="space-y-6">
+                  {/* Contact Information */}
+                  <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-2xl p-6 border border-cyan-500/20">
+                    <h3 className="text-xl font-bold text-white mb-4 flex items-center">
+                      <UserIcon className="h-6 w-6 mr-3 text-cyan-400" />
+                      Contact Information
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="flex items-center text-gray-300">
+                        <EnvelopeIcon className="h-5 w-5 mr-3 text-cyan-400" />
+                        <span className="text-sm">{selectedApplication.applicant.email}</span>
+                      </div>
+                      {selectedApplication.phone && (
                         <div className="flex items-center text-gray-300">
-                          <EnvelopeIcon className="h-4 w-4 mr-3" />
-                          {selectedApplication.applicant.email}
+                          <PhoneIcon className="h-5 w-5 mr-3 text-cyan-400" />
+                          <span className="text-sm">{selectedApplication.phone}</span>
                         </div>
-                        {selectedApplication.phone && (
-                          <div className="flex items-center text-gray-300">
-                            <PhoneIcon className="h-4 w-4 mr-3" />
-                            {selectedApplication.phone}
-                          </div>
-                        )}
-                        {selectedApplication.address && (
-                          <div className="flex items-center text-gray-300">
-                            <MapPinIcon className="h-4 w-4 mr-3" />
-                            {selectedApplication.address}
-                          </div>
-                        )}
-                        {selectedApplication.portfolio && (
-                          <div className="flex items-center text-gray-300">
-                            <LinkIcon className="h-4 w-4 mr-3" />
-                            <a 
-                              href={selectedApplication.portfolio} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-cyan-400 hover:text-cyan-300 transition-colors"
-                            >
-                              Portfolio/GitHub
-                            </a>
-                          </div>
-                        )}
-                      </div>
+                      )}
+                      {selectedApplication.address && (
+                        <div className="flex items-center text-gray-300">
+                          <MapPinIcon className="h-5 w-5 mr-3 text-cyan-400" />
+                          <span className="text-sm">{selectedApplication.address}</span>
+                        </div>
+                      )}
+                      {selectedApplication.portfolio && (
+                        <div className="flex items-center text-gray-300">
+                          <LinkIcon className="h-5 w-5 mr-3 text-cyan-400" />
+                          <a
+                            href={selectedApplication.portfolio}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-cyan-400 hover:text-cyan-300 transition-colors text-sm underline"
+                          >
+                            Portfolio/GitHub
+                          </a>
+                        </div>
+                      )}
                     </div>
+                  </div>
 
-                    {/* Academic Information */}
-                    <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                      <h3 className="text-lg font-bold text-white mb-4 flex items-center">
-                        <AcademicCapIcon className="h-5 w-5 mr-2" />
-                        Academic Information
+                  {/* Academic Information */}
+                  <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-2xl p-6 border border-green-500/20">
+                    <h3 className="text-xl font-bold text-white mb-4 flex items-center">
+                      <AcademicCapIcon className="h-6 w-6 mr-3 text-green-400" />
+                      Academic Information
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {selectedApplication.yearOfStudy && (
+                        <div className="flex items-center text-gray-300">
+                          <span className="font-medium mr-2 text-green-400">Year:</span>
+                          <span className="text-sm">{selectedApplication.yearOfStudy}</span>
+                        </div>
+                      )}
+                      {selectedApplication.cgpa && (
+                        <div className="flex items-center text-gray-300">
+                          <span className="font-medium mr-2 text-green-400">CGPA:</span>
+                          <span className="text-sm">{selectedApplication.cgpa}/10</span>
+                        </div>
+                      )}
+                      {selectedApplication.applicant.profile && selectedApplication.applicant.profile.branch && (
+                        <div className="flex items-center text-gray-300">
+                          <span className="font-medium mr-2 text-green-400">Branch:</span>
+                          <span className="text-sm">{selectedApplication.applicant.profile.branch}</span>
+                        </div>
+                      )}
+                      {selectedApplication.applicant.profile && selectedApplication.applicant.profile.education && (
+                        <div className="flex items-center text-gray-300">
+                          <span className="font-medium mr-2 text-green-400">Education:</span>
+                          <span className="text-sm">{selectedApplication.applicant.profile.education}</span>
+                        </div>
+                      )}
+                      {selectedApplication.applicant.profile && selectedApplication.applicant.profile.studentId && (
+                        <div className="flex items-center text-gray-300">
+                          <span className="font-medium mr-2 text-green-400">Student ID:</span>
+                          <span className="text-sm">{selectedApplication.applicant.profile.studentId}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Skills */}
+                  {selectedApplication.skills && selectedApplication.skills.length > 0 && (
+                    <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-2xl p-6 border border-purple-500/20">
+                      <h3 className="text-xl font-bold text-white mb-4 flex items-center">
+                        <SparklesIcon className="h-6 w-6 mr-3 text-purple-400" />
+                        Technical Skills
                       </h3>
-                      <div className="space-y-3">
-                        {selectedApplication.yearOfStudy && (
-                          <div className="flex items-center text-gray-300">
-                            <span className="font-medium mr-2">Year of Study:</span>
-                            {selectedApplication.yearOfStudy}
-                          </div>
-                        )}
-                        {selectedApplication.cgpa && (
-                          <div className="flex items-center text-gray-300">
-                            <span className="font-medium mr-2">CGPA:</span>
-                            {selectedApplication.cgpa}/10
-                          </div>
-                        )}
-                        {selectedApplication.applicant.profile && selectedApplication.applicant.profile.branch && (
-                          <div className="flex items-center text-gray-300">
-                            <span className="font-medium mr-2">Branch:</span>
-                            {selectedApplication.applicant.profile.branch}
-                          </div>
-                        )}
-                        {selectedApplication.applicant.profile && selectedApplication.applicant.profile.education && (
-                          <div className="flex items-center text-gray-300">
-                            <span className="font-medium mr-2">Education:</span>
-                            {selectedApplication.applicant.profile.education}
-                          </div>
-                        )}
-                        {selectedApplication.applicant.profile && selectedApplication.applicant.profile.studentId && (
-                          <div className="flex items-center text-gray-300">
-                            <span className="font-medium mr-2">Student ID:</span>
-                            {selectedApplication.applicant.profile.studentId}
-                          </div>
-                        )}
+                      <div className="flex flex-wrap gap-3">
+                        {selectedApplication.skills.map((skill, index) => (
+                          <motion.span
+                            key={index}
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ delay: index * 0.1 }}
+                            className="px-4 py-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-200 rounded-full text-sm font-medium border border-purple-400/30 hover:from-purple-500/30 hover:to-pink-500/30 transition-all duration-200"
+                          >
+                            {skill}
+                          </motion.span>
+                        ))}
                       </div>
                     </div>
+                  )}
 
-                    {/* Profile Information */}
-                    {selectedApplication.applicant.profile && (
-                      <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                        <h3 className="text-lg font-bold text-white mb-4 flex items-center">
-                          <UserIcon className="h-5 w-5 mr-2" />
-                          Profile Information
-                        </h3>
-                        <div className="space-y-3">
-                          {selectedApplication.applicant.profile.bio && selectedApplication.applicant.profile.bio !== "This is a sample bio." && (
-                            <div className="text-gray-300">
-                              <span className="font-medium">Bio:</span>
-                              <p className="mt-1">{selectedApplication.applicant.profile.bio}</p>
+                  {/* Experience */}
+                  {selectedApplication.experience && (
+                    <div className="bg-gradient-to-r from-orange-500/10 to-red-500/10 rounded-2xl p-6 border border-orange-500/20">
+                      <h3 className="text-xl font-bold text-white mb-4 flex items-center">
+                        <BriefcaseIcon className="h-6 w-6 mr-3 text-orange-400" />
+                        Relevant Experience
+                      </h3>
+                      <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                        <p className="text-gray-300 leading-relaxed whitespace-pre-wrap text-sm">
+                          {selectedApplication.experience}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Profile Information */}
+                  {selectedApplication.applicant.profile && (
+                    <div className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-2xl p-6 border border-blue-500/20">
+                      <h3 className="text-xl font-bold text-white mb-4 flex items-center">
+                        <UserIcon className="h-6 w-6 mr-3 text-blue-400" />
+                        Profile Information
+                      </h3>
+                      <div className="space-y-4">
+                        {selectedApplication.applicant.profile.bio && selectedApplication.applicant.profile.bio !== "This is a sample bio." && (
+                          <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                            <span className="font-medium text-blue-400">Bio:</span>
+                            <p className="mt-2 text-gray-300 text-sm">{selectedApplication.applicant.profile.bio}</p>
+                          </div>
+                        )}
+                        {selectedApplication.applicant.profile.rating && (
+                          <div className="flex items-center text-gray-300">
+                            <span className="font-medium mr-2 text-blue-400">Rating:</span>
+                            <div className="flex items-center">
+                              <StarIcon className="h-5 w-5 text-yellow-400 mr-1" />
+                              <span className="text-sm">{selectedApplication.applicant.profile.rating}/5</span>
                             </div>
-                          )}
-                          {selectedApplication.applicant.profile.rating && (
-                            <div className="flex items-center text-gray-300">
-                              <span className="font-medium mr-2">Rating:</span>
-                              <div className="flex items-center">
-                                <StarIcon className="h-4 w-4 text-yellow-400 mr-1" />
-                                <span>{selectedApplication.applicant.profile.rating}/5</span>
-                              </div>
-                            </div>
-                          )}
+                          </div>
+                        )}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {selectedApplication.applicant.profile.linkedin && selectedApplication.applicant.profile.linkedin !== "https://linkedin.com/in/example" && (
                             <div className="flex items-center text-gray-300">
-                              <LinkIcon className="h-4 w-4 mr-3" />
+                              <LinkIcon className="h-5 w-5 mr-3 text-blue-400" />
                               <a
                                 href={selectedApplication.applicant.profile.linkedin}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-cyan-400 hover:text-cyan-300 transition-colors"
+                                className="text-cyan-400 hover:text-cyan-300 transition-colors text-sm underline"
                               >
                                 LinkedIn Profile
                               </a>
@@ -617,12 +654,12 @@ const ProjectApplicants = () => {
                           )}
                           {selectedApplication.applicant.profile.github && selectedApplication.applicant.profile.github !== "https://github.com/example" && (
                             <div className="flex items-center text-gray-300">
-                              <LinkIcon className="h-4 w-4 mr-3" />
+                              <LinkIcon className="h-5 w-5 mr-3 text-blue-400" />
                               <a
                                 href={selectedApplication.applicant.profile.github}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-cyan-400 hover:text-cyan-300 transition-colors"
+                                className="text-cyan-400 hover:text-cyan-300 transition-colors text-sm underline"
                               >
                                 GitHub Profile
                               </a>
@@ -630,101 +667,60 @@ const ProjectApplicants = () => {
                           )}
                         </div>
                       </div>
-                    )}
+                    </div>
+                  )}
 
-                    {/* Application Details */}
-                    <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                      <h3 className="text-lg font-bold text-white mb-4 flex items-center">
-                        <BriefcaseIcon className="h-5 w-5 mr-2" />
-                        Application Details
-                      </h3>
-                      <div className="space-y-3">
+                  {/* Application Details */}
+                  <div className="bg-gradient-to-r from-yellow-500/10 to-amber-500/10 rounded-2xl p-6 border border-yellow-500/20">
+                    <h3 className="text-xl font-bold text-white mb-4 flex items-center">
+                      <BriefcaseIcon className="h-6 w-6 mr-3 text-yellow-400" />
+                      Application Details
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="flex items-center text-gray-300">
+                        <CalendarIcon className="h-5 w-5 mr-3 text-yellow-400" />
+                        <span className="text-sm">Applied on {new Date(selectedApplication.appliedAt).toLocaleDateString()}</span>
+                      </div>
+                      {selectedApplication.availability && (
                         <div className="flex items-center text-gray-300">
-                          <CalendarIcon className="h-4 w-4 mr-3" />
-                          Applied on {new Date(selectedApplication.appliedAt).toLocaleDateString()}
+                          <ClockIcon className="h-5 w-5 mr-3 text-yellow-400" />
+                          <span className="text-sm">Available: {selectedApplication.availability}</span>
                         </div>
-                        {selectedApplication.cgpa && (
-                          <div className="flex items-center text-gray-300">
-                            <AcademicCapIcon className="h-4 w-4 mr-3" />
-                            CGPA: {selectedApplication.cgpa}/10
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Resume */}
+                  {selectedApplication.resume && (
+                    <div className="bg-gradient-to-r from-red-500/10 to-pink-500/10 rounded-2xl p-6 border border-red-500/20">
+                      <h3 className="text-xl font-bold text-white mb-4 flex items-center">
+                        <DocumentArrowDownIcon className="h-6 w-6 mr-3 text-red-400" />
+                        Resume
+                      </h3>
+                      <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10">
+                        <div className="flex items-center">
+                          <DocumentTextIcon className="h-8 w-8 text-red-400 mr-3" />
+                          <div>
+                            <p className="text-white font-medium text-sm">{selectedApplication.resume.filename}</p>
+                            <p className="text-gray-400 text-xs">
+                              Uploaded {new Date(selectedApplication.resume.uploadedAt).toLocaleDateString()}
+                            </p>
                           </div>
-                        )}
-                        {selectedApplication.availability && (
-                          <div className="flex items-center text-gray-300">
-                            <ClockIcon className="h-4 w-4 mr-3" />
-                            Availability: {selectedApplication.availability}
-                          </div>
-                        )}
+                        </div>
+                        <motion.a
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          href={selectedApplication.resume.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-4 py-2 bg-gradient-to-r from-red-500/20 to-pink-500/20 text-red-300 rounded-xl hover:from-red-500/30 hover:to-pink-500/30 transition-colors flex items-center border border-red-400/30"
+                        >
+                          <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
+                          Download
+                        </motion.a>
                       </div>
                     </div>
-
-                    {/* Resume */}
-                    {selectedApplication.resume && (
-                      <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                        <h3 className="text-lg font-bold text-white mb-4 flex items-center">
-                          <DocumentArrowDownIcon className="h-5 w-5 mr-2" />
-                          Resume
-                        </h3>
-                        <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10">
-                          <div className="flex items-center">
-                            <DocumentTextIcon className="h-8 w-8 text-red-400 mr-3" />
-                            <div>
-                              <p className="text-white font-medium">{selectedApplication.resume.filename}</p>
-                              <p className="text-gray-400 text-sm">
-                                Uploaded {new Date(selectedApplication.resume.uploadedAt).toLocaleDateString()}
-                              </p>
-                            </div>
-                          </div>
-                          <a
-                            href={selectedApplication.resume.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-4 py-2 bg-blue-500/20 text-blue-300 rounded-xl hover:bg-blue-500/30 transition-colors flex items-center"
-                          >
-                            <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
-                            Download
-                          </a>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Right Column */}
-                  <div className="space-y-6">
-                    {/* Skills */}
-                    {selectedApplication.skills && selectedApplication.skills.length > 0 && (
-                      <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                        <h3 className="text-lg font-bold text-white mb-4 flex items-center">
-                          <SparklesIcon className="h-5 w-5 mr-2" />
-                          Technical Skills
-                        </h3>
-                        <div className="flex flex-wrap gap-2">
-                          {selectedApplication.skills.map((skill, index) => (
-                            <span
-                              key={index}
-                              className="px-3 py-2 bg-blue-500/20 text-blue-200 rounded-xl text-sm font-medium border border-blue-400/30"
-                            >
-                              {skill}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-
-                    {/* Experience */}
-                    {selectedApplication.experience && (
-                      <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                        <h3 className="text-lg font-bold text-white mb-4 flex items-center">
-                          <BriefcaseIcon className="h-5 w-5 mr-2" />
-                          Relevant Experience
-                        </h3>
-                        <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">
-                          {selectedApplication.experience}
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
 
                 {/* Action Buttons */}

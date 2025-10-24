@@ -172,7 +172,12 @@ const Login = () => {
               {error}
             </motion.p>
           )}
-
+          <Link
+            to="/register"
+            className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+          >
+            forget password.?
+          </Link>
           {/* Submit Button */}
           <motion.button
             whileHover={{ scale: 1.02 }}

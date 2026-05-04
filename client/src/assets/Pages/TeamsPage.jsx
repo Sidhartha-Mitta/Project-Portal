@@ -240,7 +240,7 @@ const TeamsPage = () => {
     }
 
     const teamId = selectedTeam._id || selectedTeam.id;
-    const downloadUrl = `http://localhost:5001/api/teams/${teamId}/messages/${messageId}/attachments/${attachmentIndex}/download?token=${token}`;
+    const downloadUrl = `${import.meta.env.VITE_BACKEND_API_URL}/teams/${teamId}/messages/${messageId}/attachments/${attachmentIndex}/download?token=${token}`;
 
     try {
       const response = await fetch(downloadUrl, {

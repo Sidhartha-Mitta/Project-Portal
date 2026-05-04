@@ -1,217 +1,319 @@
-   # PCP - Project Collaboration Platform
+# PCP - Project Collaboration Platform
 
-A comprehensive full-stack platform that connects project owners with skilled students for collaborative development projects. Built with modern web technologies to facilitate seamless project management, team formation, and real-time communication.
+PCP is a full-stack project collaboration platform for connecting project owners with students. Project owners can post projects, review applications, create teams, and monitor progress. Students can discover projects, apply, collaborate in teams, chat in real time, and submit completed work.
 
-## 🚀 Features
+## Features
 
-### For Project Owners
-- **Post Projects**: Create detailed project listings with requirements, skills needed, and timelines
-- **Application Management**: Review student applications, shortlist candidates, and select team members
-- **Team Oversight**: Monitor project progress, review submissions, and provide feedback
-- **Rating System**: Rate completed projects and individual team members
-- **Real-time Communication**: Chat with teams via integrated messaging
+### Project Owners
 
-### For Students
-- **Project Discovery**: Browse projects by category, difficulty, and skills
-- **Easy Application**: Submit applications with resumes, cover letters, and proposals
-- **Team Collaboration**: Join teams and work together on assigned projects
-- **Project Submission**: Submit work with repository links, demos, and file uploads
-- **Skill Development**: Gain experience across various technologies and project types
+- Post projects with category, requirements, skills, timeline, and team size.
+- Review and manage student applications.
+- Shortlist or accept applicants.
+- Create teams for selected project members.
+- Review project submissions and rate completed work.
+- Communicate with teams through real-time chat.
 
-### Platform Features
-- **Real-time Chat**: Team-based messaging with typing indicators
-- **File Uploads**: Support for resumes, project files, and attachments via Cloudinary
-- **Authentication**: Secure JWT-based authentication system
-- **Responsive Design**: Mobile-friendly interface built with Tailwind CSS
-- **Dark Mode**: Theme switching capability
-- **Advanced Filtering**: Search and filter projects by multiple criteria
+### Students
 
-## 🛠 Tech Stack
+- Register and maintain a profile with skills and experience.
+- Browse and filter available projects.
+- Apply to projects with application details and attachments.
+- Join assigned teams.
+- Use team chat with messages, reactions, and file attachments.
+- Submit completed project work.
+
+### Platform
+
+- JWT-based authentication.
+- Role-based user flows for students and project owners.
+- MongoDB database with Mongoose models.
+- Cloudinary-backed file and avatar uploads.
+- Socket.IO real-time team communication.
+- Responsive React frontend with dark mode support.
+
+## Tech Stack
 
 ### Backend
-- **Node.js** - Runtime environment
-- **Express.js** - Web framework
-- **MongoDB** - NoSQL database
-- **Mongoose** - ODM for MongoDB
-- **Socket.io** - Real-time communication
-- **JWT** - Authentication
-- **bcryptjs** - Password hashing
-- **Cloudinary** - File storage and management
-- **Multer** - File upload handling
+
+- Node.js
+- Express.js
+- MongoDB Atlas or local MongoDB
+- Mongoose
+- Socket.IO
+- JSON Web Tokens
+- bcryptjs
+- Multer
+- Cloudinary
 
 ### Frontend
-- **React 19** - UI library
-- **Vite** - Build tool and dev server
-- **Tailwind CSS** - Utility-first CSS framework
-- **Zustand** - State management
-- **React Router** - Client-side routing
-- **Axios** - HTTP client
-- **Framer Motion** - Animation library
-- **React Hot Toast** - Notification system
-- **Recharts** - Data visualization
 
-## 📋 Prerequisites
+- React 19
+- Vite
+- Tailwind CSS
+- Zustand
+- React Router
+- Axios and Fetch API
+- Framer Motion
+- React Hot Toast
+- Recharts
 
-- Node.js (v16 or higher)
-- MongoDB (local or cloud instance)
-- npm or yarn package manager
+## Project Structure
 
-## 🔧 Installation
+```text
+PCP/
+  backend/
+    Controllers/
+    Middleware/
+    Models/
+    Routes/
+    config/
+    utils/
+    server.js
+    package.json
+    .env.example
+  client/
+    src/
+    package.json
+    .env
+  README.md
+```
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd pcp
-   ```
+## Prerequisites
 
-2. **Backend Setup**
-   ```bash
-   cd backend
-   npm install
-   ```
+- Node.js 20 recommended, Node.js 16 or later required.
+- npm.
+- MongoDB Atlas database or a local MongoDB instance.
+- Cloudinary account for image and file uploads.
 
-   Create a `.env` file in the backend directory:
-   ```env
-   MONGO_URI=your_mongodb_connection_string
-   JWT_SECRET=your_jwt_secret_key
-   PORT=5001
-   CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
-   CLOUDINARY_API_KEY=your_cloudinary_api_key
-   CLOUDINARY_API_SECRET=your_cloudinary_api_secret
-   ```
+## Environment Variables
 
-3. **Frontend Setup**
-   ```bash
-   cd ../client
-   npm install
-   ```
+### Backend
 
-4. **Start the Application**
+Create `backend/.env`:
 
-   **Backend:**
-   ```bash
-   cd backend
-   npm run dev
-   ```
+```env
+MONGO_URI=mongodb+srv://<db-user>:<url-encoded-password>@<cluster-host>/<database>?retryWrites=true&w=majority
+JWT_SECRET=replace_with_a_strong_secret
+PORT=5000
+FRONTEND_URL=http://localhost:5173
+CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+```
 
-   **Frontend:**
-   ```bash
-   cd client
-   npm run dev
-   ```
+MongoDB notes:
 
-   The application will be running at:
-   - Frontend: http://localhost:5173
-   - Backend: http://localhost:5001
+- Use a MongoDB Atlas **Database Access** user, not your Atlas login email.
+- If your password contains special characters such as `@`, `#`, `/`, `?`, `:`, or `%`, URL-encode it before adding it to `MONGO_URI`.
+- Example: `p@ssword` becomes `p%40ssword`.
 
-## 📖 Usage
+### Frontend
 
-### Getting Started
-1. **Register** as either a project owner or student
-2. **Complete your profile** with relevant information
-3. **Explore projects** or post new ones
+Create `client/.env`:
 
-### For Project Owners
-1. Navigate to "Post Project" to create a new project listing
-2. Review applications in the dashboard
-3. Select team members and create teams
-4. Monitor progress and provide feedback
+```env
+VITE_BACKEND_API_URL=http://localhost:5000/api
+```
 
-### For Students
-1. Browse available projects on the home page
-2. Apply to projects that match your skills
-3. Join teams and collaborate on assigned projects
-4. Submit completed work for review
+Restart the Vite dev server after changing `client/.env`; Vite reads env variables only at startup.
 
-## 🗄 Database Models
+## Installation
 
-### Project Model
-- Core project information (title, description, category)
-- Skills requirements and difficulty level
-- Timeline and team size constraints
-- Application management system
-- Submission tracking and rating system
+Install backend dependencies:
 
-### User Model
-- Authentication and profile information
-- Role-based access (student/project owner)
-- Skills and experience tracking
+```bash
+cd backend
+npm install
+```
 
-### Team Model
-- Team formation and member management
-- Project assignment
-- Communication channels
+Install frontend dependencies:
 
-### Application Model
-- Application tracking with status updates
-- Resume and portfolio attachments
-- Feedback and rating system
+```bash
+cd ../client
+npm install
+```
 
-## 🔌 API Endpoints
+## Running Locally
+
+Start the backend:
+
+```bash
+cd backend
+npm run dev
+```
+
+Expected backend output:
+
+```text
+MongoDB Connected
+Server running on port 5000
+```
+
+Start the frontend in a separate terminal:
+
+```bash
+cd client
+npm run dev
+```
+
+Local URLs:
+
+- Frontend: `http://localhost:5173`
+- Backend API: `http://localhost:5000/api`
+
+## Available Scripts
+
+### Backend
+
+```bash
+npm run dev
+npm start
+```
+
+### Frontend
+
+```bash
+npm run dev
+npm run build
+npm run preview
+npm run lint
+```
+
+## API Routes
+
+Base URL:
+
+```text
+http://localhost:5000/api
+```
 
 ### Authentication
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `POST /api/auth/logout` - User logout
 
-### Projects
-- `GET /api/projects` - Get all projects
-- `POST /api/projects` - Create new project
-- `GET /api/projects/:id` - Get project details
-- `PUT /api/projects/:id` - Update project
-- `DELETE /api/projects/:id` - Delete project
-
-### Applications
-- `POST /api/applications` - Submit application
-- `GET /api/applications/project/:projectId` - Get project applications
-- `PUT /api/applications/:id/status` - Update application status
-
-### Teams
-- `GET /api/teams` - Get user teams
-- `POST /api/teams` - Create new team
-- `GET /api/teams/:id` - Get team details
+- `POST /auth/register`
+- `POST /auth/login`
+- `GET /auth/me`
 
 ### Users
-- `GET /api/users/profile` - Get user profile
-- `PUT /api/users/profile` - Update user profile
 
-## 🔒 Security Features
+- `GET /users/:id`
+- `PUT /users/:id`
 
-- JWT token-based authentication
-- Password hashing with bcryptjs
-- CORS configuration for cross-origin requests
-- File upload size limits and validation
-- Input sanitization and validation
+### Projects
 
-## 🚀 Deployment
+- `GET /projects`
+- `POST /projects`
+- `GET /projects/:id`
+- `PUT /projects/:id`
+- `DELETE /projects/:id`
+- `GET /projects/user/my-projects`
+- `GET /projects/dashboard/data`
+- `POST /projects/:id/apply`
+- `GET /projects/:id/applications`
+- `PUT /projects/:projectId/applications/:applicationId`
+- `POST /projects/:id/submit`
+- `PUT /projects/:id/submissions/:submissionId`
+- `PUT /projects/:id/approve`
+- `POST /projects/:id/rate`
 
-### Backend Deployment
-1. Set up environment variables on your hosting platform
-2. Ensure MongoDB connection is configured
-3. Deploy to services like Heroku, Railway, or Vercel
+### Applications
 
-### Frontend Deployment
-1. Build the production bundle: `npm run build`
-2. Deploy to services like Vercel, Netlify, or GitHub Pages
-3. Configure API base URL for production
+- `GET /applications/my-applications`
+- `GET /applications/:id/applications`
+- `PUT /applications/:projectId/applications/:applicationId`
 
-## 🤝 Contributing
+### Teams
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+- `GET /teams`
+- `GET /teams/:id`
+- `POST /teams/:id/members`
+- `DELETE /teams/:id/members/:userId`
+- `GET /teams/:id/messages`
+- `POST /teams/:id/messages`
+- `PUT /teams/:teamId/messages/:messageId`
+- `DELETE /teams/:teamId/messages/:messageId`
+- `POST /teams/:teamId/messages/:messageId/reactions`
+- `GET /teams/:teamId/messages/:messageId/attachments/:attachmentIndex/download`
 
-## 📝 License
+## Common Issues
+
+### `bad auth : Authentication failed`
+
+MongoDB Atlas rejected the credentials in `backend/.env`.
+
+Fix:
+
+- Copy a fresh connection string from Atlas.
+- Confirm the username/password belongs to a Database Access user.
+- URL-encode special characters in the password.
+
+### `querySrv ENOTFOUND`
+
+The MongoDB Atlas host cannot be resolved.
+
+Fix:
+
+- Check the cluster hostname in `MONGO_URI`.
+- Confirm your internet/DNS connection works.
+- Copy the current driver connection string from Atlas.
+
+### `EADDRINUSE: address already in use`
+
+The backend port is already occupied.
+
+Fix:
+
+```bash
+ss -ltnp 'sport = :5000'
+```
+
+Then stop the existing process or change `PORT` in `backend/.env` and update `VITE_BACKEND_API_URL` in `client/.env` to match.
+
+### CORS Error
+
+If the browser says the allowed origin does not match `http://localhost:5173`, make sure:
+
+- Backend is running on `http://localhost:5000`.
+- `client/.env` has `VITE_BACKEND_API_URL=http://localhost:5000/api`.
+- `backend/.env` has `FRONTEND_URL=http://localhost:5173`.
+- You restarted both backend and frontend after env changes.
+
+## Build
+
+Build the frontend for production:
+
+```bash
+cd client
+npm run build
+```
+
+The production output is generated in `client/dist`.
+
+## Deployment Notes
+
+Backend deployment:
+
+- Set all backend environment variables on the hosting platform.
+- Use the production MongoDB Atlas URI.
+- Set `FRONTEND_URL` to the deployed frontend origin.
+
+Frontend deployment:
+
+- Set `VITE_BACKEND_API_URL` to the deployed backend API URL.
+- Rebuild the frontend after changing environment variables.
+
+Example:
+
+```env
+VITE_BACKEND_API_URL=https://your-backend-domain.com/api
+```
+
+## Security Notes
+
+- Do not commit `.env` files.
+- Rotate credentials if secrets are ever exposed.
+- Use strong `JWT_SECRET` values in production.
+- Keep MongoDB Atlas Network Access restricted to trusted IPs where possible.
+
+## License
 
 This project is licensed under the ISC License.
-
-## 📞 Support
-
-For support, email support@pcp.com or join our Discord community.
-
-## 🙏 Acknowledgments
-
-- Thanks to all contributors and the open-source community
-- Special thanks to the developers of the technologies used in this project

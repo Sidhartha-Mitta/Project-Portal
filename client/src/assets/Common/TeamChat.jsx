@@ -286,7 +286,7 @@ const TeamChat = ({ team, isOpen, onClose }) => {
     }
 
     const teamId = team._id || team.id;
-    const downloadUrl = `http://localhost:5001/api/teams/${teamId}/messages/${messageId}/attachments/${attachmentIndex}/download?token=${token}`;
+    const downloadUrl = `${import.meta.env.VITE_BACKEND_API_URL}/teams/${teamId}/messages/${messageId}/attachments/${attachmentIndex}/download?token=${token}`;
 
     try {
       // Show download progress for large files

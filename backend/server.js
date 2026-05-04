@@ -16,8 +16,53 @@ import multer from 'multer';
 import Team from "./Models/Team.js";
 import User from "./Models/User.js";
 
+const getMongoConnectionHint = (error) => {
+  if (!process.env.MONGO_URI) {
+    return "MONGO_URI is missing. Add it to backend/.env.";
+  }
+
+  if (error?.code === "ENOTFOUND" || error?.syscall === "querySrv") {
+    return "MongoDB Atlas host could not be resolved. Check the cluster hostname in MONGO_URI and your DNS/network connection.";
+  }
+
+  if (
+    error?.code === 8000 ||
+    error?.codeName === "AtlasError" ||
+    /Authentication failed|bad auth/i.test(error?.message || "")
+  ) {
+    return "MongoDB Atlas authentication failed. Update the username/password in backend/.env to match a Database Access user in Atlas. If the password contains special characters, URL-encode it before putting it in MONGO_URI.";
+  }
+
+  return "MongoDB connection failed. Check MONGO_URI and Atlas network access settings.";
+};
+
 const app = express();
 const server = createServer(app);
+const PORT = process.env.PORT || 5001;
+const localOrigins = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "http://localhost:8080",
+  "http://127.0.0.1:8080",
+];
+const deployedOrigins = [
+  "https://projectportal-xki3.onrender.com",
+  ...((process.env.FRONTEND_URL || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean)),
+];
+const allowedOrigins = [...new Set([...localOrigins, ...deployedOrigins])];
+
+server.on("error", (error) => {
+  if (error.code === "EADDRINUSE") {
+    console.error(`Port ${PORT} is already in use. Stop the process using it, or change PORT in backend/.env.`);
+  } else {
+    console.error("Server failed to start:", error.message);
+  }
+
+  process.exit(1);
+});
 
 // Configure multer for handling both files and FormData
 const upload = multer({
@@ -36,14 +81,6 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
-    const allowedOrigins = [
-      'http://localhost:5173',
-      'https://projectportal-xki3.onrender.com'
-    ];
-    if (process.env.FRONTEND_URL) {
-      allowedOrigins.push(process.env.FRONTEND_URL);
-    }
-
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -59,11 +96,7 @@ app.use(cors({
 // Socket.IO setup
 const io = new Server(server, {
   cors: {
-    origin: [
-      'http://localhost:5173',
-      'https://projectportal-xki3.onrender.com',
-      process.env.FRONTEND_URL
-    ],
+    origin: allowedOrigins,
     credentials: true
   }
 });
@@ -183,12 +216,15 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB Connected");
-    const PORT = process.env.PORT || 5001;
     server.listen(PORT, () =>
       console.log(`Server running on port ${PORT}`)
     );
   })
-  .catch((err) => console.error(err));
+  .catch((err) => {
+    console.error("MongoDB connection error:", err.message);
+    console.error(getMongoConnectionHint(err));
+    process.exit(1);
+  });
 
 // Export io for use in controllers
 export { io };

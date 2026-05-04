@@ -2,12 +2,19 @@ import { create } from "zustand";
 import axios from "axios";
 import { useAuthStore } from "./authStore";
 
-const API_URL = "http://localhost:5001/api/users";
+const API_URL = `${import.meta.env.VITE_BACKEND_API_URL}/users`;
+
+const getUserId = (value) => {
+  if (!value) return null;
+  if (typeof value === "string") return value;
+  return value._id || value.id || null;
+};
 
 const useProfileStore = create(() => ({
   // ✅ Save to backend
   saveProfile: async (userId, profileData) => {
-    if (!userId) return;
+    const id = getUserId(userId);
+    if (!id) throw new Error("Cannot save profile without a user id");
 
     try {
       // Check if profileData is FormData (for file uploads) or regular object
@@ -19,7 +26,7 @@ const useProfileStore = create(() => ({
         },
       } : {};
 
-      const res = await axios.put(`${API_URL}/${userId}`, profileData, config);
+      const res = await axios.put(`${API_URL}/${id}`, profileData, config);
       const updatedUser = res.data.user || res.data;
 
       // 🔹 Sync with AuthStore
@@ -37,7 +44,10 @@ const useProfileStore = create(() => ({
   // ✅ Load from backend
   loadProfile: async (id) => {
     try {
-      const res = await axios.get(`${API_URL}/${id}`);
+      const userId = getUserId(id);
+      if (!userId) throw new Error("Cannot load profile without a user id");
+
+      const res = await axios.get(`${API_URL}/${userId}`);
       const freshUser = res.data.user || res.data;
 
       // 🔹 Sync with AuthStore

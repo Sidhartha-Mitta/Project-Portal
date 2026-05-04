@@ -46,6 +46,7 @@ const localOrigins = [
   "http://127.0.0.1:8080",
 ];
 const deployedOrigins = [
+  "https://project-portal-vert.vercel.app",
   "https://projectportal-xki3.onrender.com",
   ...((process.env.FRONTEND_URL || "")
     .split(",")

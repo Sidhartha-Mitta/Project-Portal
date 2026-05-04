@@ -95,7 +95,7 @@ Create `backend/.env`:
 MONGO_URI=mongodb+srv://<db-user>:<url-encoded-password>@<cluster-host>/<database>?retryWrites=true&w=majority
 JWT_SECRET=replace_with_a_strong_secret
 PORT=5000
-FRONTEND_URL=http://localhost:5173
+FRONTEND_URL=https://project-portal-vert.vercel.app
 CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
 CLOUDINARY_API_KEY=your_cloudinary_api_key
 CLOUDINARY_API_SECRET=your_cloudinary_api_secret
@@ -274,7 +274,7 @@ If the browser says the allowed origin does not match `http://localhost:5173`, m
 
 - Backend is running on `http://localhost:5000`.
 - `client/.env` has `VITE_BACKEND_API_URL=http://localhost:5000/api`.
-- `backend/.env` has `FRONTEND_URL=http://localhost:5173`.
+- `backend/.env` has `FRONTEND_URL=http://localhost:5173` for local-only development, or `FRONTEND_URL=https://project-portal-vert.vercel.app` for the deployed frontend.
 - You restarted both backend and frontend after env changes.
 
 ## Build
@@ -294,7 +294,7 @@ Backend deployment:
 
 - Set all backend environment variables on the hosting platform.
 - Use the production MongoDB Atlas URI.
-- Set `FRONTEND_URL` to the deployed frontend origin.
+- Set `FRONTEND_URL` to the deployed frontend origin: `https://project-portal-vert.vercel.app`.
 
 Frontend deployment:
 

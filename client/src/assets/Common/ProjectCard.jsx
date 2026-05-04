@@ -4,17 +4,28 @@ import { motion } from "framer-motion";
 import {
   ClockIcon,
   UserGroupIcon,
-  CurrencyDollarIcon,
   FireIcon,
   CheckCircleIcon,
 } from "@heroicons/react/24/outline";
+import { useAuthStore } from "../../store/authStore";
 
 const ProjectCard = ({ project, index }) => {
   motion;
+  const { user } = useAuthStore();
 
   // Check if user has applied to this project
   const hasUserApplied = () => {
-    return project.applications && project.applications.length > 0;
+    if (!user || !project.applications) return false;
+
+    const userId = user._id || user.id;
+
+    return project.applications.some((application) => {
+      const applicant = application.applicant;
+      const applicantId =
+        typeof applicant === "object" ? applicant?._id : applicant;
+
+      return applicantId === userId;
+    });
   };
   const getPriorityColor = (priority) => {
     switch (priority) {

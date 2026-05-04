@@ -177,11 +177,28 @@ io.on('connection', (socket) => {
 });
 
 // Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/projects", projectRoutes);
-app.use("/api/applications", applicationRoutes);
-app.use("/api/teams", teamRoutes);
+const mountRoutes = (prefix = "") => {
+  app.use(`${prefix}/auth`, authRoutes);
+  app.use(`${prefix}/users`, userRoutes);
+  app.use(`${prefix}/projects`, projectRoutes);
+  app.use(`${prefix}/applications`, applicationRoutes);
+  app.use(`${prefix}/teams`, teamRoutes);
+};
+
+app.get("/", (req, res) => {
+  res.json({ success: true, message: "Project Portal API is running" });
+});
+
+mountRoutes("/api");
+// Backwards-compatible mounts for deployed clients configured without `/api`.
+mountRoutes();
+
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Route not found: ${req.method} ${req.originalUrl}`,
+  });
+});
 
 // Global error handler
 app.use((error, req, res, next) => {

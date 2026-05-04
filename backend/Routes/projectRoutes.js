@@ -56,6 +56,7 @@ const submissionUpload = multer({
 router.get('/', getAllProjects);
 
 // Protected routes
+router.get('/dashboard/data', protect, getDashboardData);
 router.get('/session', protect, getProjectsForSession);
 router.get('/user/my-projects', protect, getMyProjects);
 
@@ -81,8 +82,5 @@ router.put('/:id/approve', protect, approveProject);
 
 // Rating routes
 router.post('/:id/rate', protect, rateProject);
-
-// Dashboard route
-router.get('/dashboard/data', protect, getDashboardData);
 
 export default router;
